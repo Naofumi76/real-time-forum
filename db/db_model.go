@@ -1,13 +1,15 @@
 package db
 
 type User struct {
-	ID       int
-	Provider string
-	Role     string
-	Username string
-	Email    string
-	Picture  string
-	Password string
+	ID        int
+	Username  string
+	Email     string
+	Age       int
+	Gender    string
+	FirstName string
+	LastName  string
+	Picture   string
+	Password  string
 }
 
 type Post struct {

@@ -71,10 +71,44 @@ export function signupPage() {
 	document.body.appendChild(formSignup)
 }
 
-export function submitSignupForm() {
-	console.log('Form submitted')
-    // Add your code here to validate and submit the form data
-    // For example, you can use AJAX to send the form data to a server for further processing
+export function submitSignupForm(event) {
+    event.preventDefault();
+
+    // Collect all form data
+    const formData = {
+        username: document.querySelector("input[placeholder='Your username']").value,
+        email: document.querySelector("input[placeholder='Your email']").value,
+        password: document.querySelector("input[placeholder='Your password']").value,
+        age: parseInt(document.querySelector("input[placeholder='Your age']").value),
+        gender: document.querySelector("input[placeholder='Your gender']").value,
+        first_name: document.querySelector("input[placeholder='Your first name']").value,
+        last_name: document.querySelector("input[placeholder='Your last name']").value,
+    };
+
+    fetch("http://localhost:8080/signup", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+    })
+        .then(async (response) => {
+            const text = await response.text();
+
+            try {
+                return JSON.parse(text); // Only parse if response is valid JSON
+            } catch (error) {
+                throw new Error("Invalid JSON response from server");
+            }
+        })
+        .then((data) => {
+            if (data.success) {
+                alert(data.message);
+            } else {
+                alert("Error: " + data.message);
+            }
+        })
+        .catch((error) => console.error("Error:", error));
 }
 
 export function loginPage() {
@@ -111,8 +145,24 @@ export function loginPage() {
 	document.body.appendChild(formLogin)
 }
 
-export function submitLoginForm() {
-	console.log('Form submitted')
-    // Add your code here to validate and submit the form data
-    // For example, you can use AJAX to send the form data to a server for further processing
+export function submitLoginForm(event) {
+	event.preventDefault(); // Prevent page reload
+
+	const formData = {
+		email: document.querySelector("input[placeholder='Your email']").value,
+		password: document.querySelector("input[placeholder='Your password']").value,
+	};
+
+	fetch("http://localhost:8080/login", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify(formData),
+	})
+		.then((response) => response.json())
+		.then((data) => {
+			alert(data.message);
+		})
+		.catch((error) => console.error("Error:", error));
 }
