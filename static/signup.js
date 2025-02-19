@@ -1,19 +1,4 @@
-var signupButton = document.createElement('button');
-	signupButton.textContent = 'Signup';
-	signupButton.id ='signupButton';
-	document.body.appendChild(signupButton);
-
-var loginButton = document.createElement('button');
-	loginButton.textContent = 'Login';
-	loginButton.id ='loginButton';
-	document.body.appendChild(loginButton);
-
-export function indexListener() {
-	signupButton = document.getElementById('signupButton');
-	signupButton.addEventListener('click', signupPage);
-	loginButton = document.getElementById('loginButton');
-	loginButton.addEventListener('click', loginPage);
-}
+import { homePage } from "./home.js"
 
 export function signupPage() {
 	var formSignup, h1Signup, inputUsername, inputPassword, inputEmail, inputAge, inputGender, inputFirstName, inputLastName, inputPassword, submitButton
@@ -108,61 +93,7 @@ export function submitSignupForm(event) {
                 alert("Error: " + data.message);
             }
         })
-        .catch((error) => console.error("Error:", error));
-}
-
-export function loginPage() {
-	var formLogin, h1Login, inputUsername, inputEmail, inputPassword, submitButton
-	document.body.innerHTML = ""
-    formLogin = document.createElement('form')
-    formLogin.id = 'loginDiv'
-
-    h1Login = document.createElement('h1')
-    h1Login.textContent = 'Login to the forum'
-    formLogin.appendChild(h1Login)
-
-	inputUsername = document.createElement('input')
-	inputUsername.type = 'text'
-	inputUsername.placeholder = 'Your username'
-	formLogin.appendChild(inputUsername)
-
-    inputEmail = document.createElement('input')
-    inputEmail.type = 'email'
-    inputEmail.placeholder = 'Your email'
-    formLogin.appendChild(inputEmail)
-
-    inputPassword = document.createElement('input')
-    inputPassword.type = 'password'
-    inputPassword.placeholder = 'Your password'
-    formLogin.appendChild(inputPassword)
-
-	submitButton = document.createElement('button')
-	submitButton.textContent = 'Login'
-	submitButton.addEventListener('click', submitLoginForm)
-
-	formLogin.appendChild(submitButton)
-
-	document.body.appendChild(formLogin)
-}
-
-export function submitLoginForm(event) {
-	event.preventDefault(); // Prevent page reload
-
-	const formData = {
-		email: document.querySelector("input[placeholder='Your email']").value,
-		password: document.querySelector("input[placeholder='Your password']").value,
-	};
-
-	fetch("http://localhost:8080/login", {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify(formData),
-	})
-		.then((response) => response.json())
-		.then((data) => {
-			alert(data.message);
+		.then(() => {
+			homePage()	
 		})
-		.catch((error) => console.error("Error:", error));
 }

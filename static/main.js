@@ -1,3 +1,3 @@
-import * as start from './register.js'
+import * as start from './registerPage.js'
 
 start.indexListener()

@@ -9,6 +9,7 @@ import (
 // UserLoginRequest represents the JSON request structure for login
 type UserLoginRequest struct {
 	Email    string `json:"email"`
+	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
@@ -21,25 +22,44 @@ type LoginResponse struct {
 // LoginHandler handles user authentication
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		http.Error(w, `{"success": false, "message": "Invalid request method"}`, http.StatusMethodNotAllowed)
 		return
 	}
 
+	// Decode JSON request
 	var req UserLoginRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		http.Error(w, "Invalid JSON input", http.StatusBadRequest)
+		http.Error(w, `{"success": false, "message": "Invalid JSON input"}`, http.StatusBadRequest)
 		return
 	}
 
-	user, err := db.SelectUserByEmail(req.Email)
-	if err != nil {
-		http.Error(w, "User not found", http.StatusUnauthorized)
+	// Ensure at least one field (email or username) is provided
+	if req.Email == "" && req.Username == "" {
+		http.Error(w, `{"success": false, "message": "Email or Username required"}`, http.StatusBadRequest)
 		return
 	}
 
+	// Find user by email first, then by username if email is empty
+	var user *db.User
+	if req.Email != "" {
+		user, err = db.SelectUserByEmail(req.Email)
+	}
+	if (user == nil || err != nil) && req.Username != "" {
+		user, err = db.SelectUserByUsername(req.Username)
+	}
+
+	// Check if user exists
+	if user == nil || err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(LoginResponse{Success: false, Message: "User not found"})
+		return
+	}
+
+	// Validate password
 	if !db.IsPasswordValid(req.Password, user.Password) {
-		http.Error(w, "Invalid password", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(LoginResponse{Success: false, Message: "Invalid password"})
 		return
 	}
 
@@ -51,6 +71,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Set the response header to JSON
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 
 	// Encode and send the response
 	json.NewEncoder(w).Encode(response)

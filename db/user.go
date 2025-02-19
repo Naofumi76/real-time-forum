@@ -166,7 +166,7 @@ func SelectUserByEmail(email string) (*User, error) {
 	SELECT u.id, u.username, u.email, u.password
 	FROM users u
 	WHERE email = ?`,
-		email).Scan(&user.ID, &user.Username, &user.Email, &user.Picture, &user.Password)
+		email).Scan(&user.ID, &user.Username, &user.Email, &user.Password)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, errors.New("user not found")
