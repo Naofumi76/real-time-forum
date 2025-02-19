@@ -14,6 +14,7 @@ func main() {
 	// Register handlers
 	http.HandleFunc("/signup", handlers.SignupHandler)
 	http.HandleFunc("/login", handlers.LoginHandler)
+	http.HandleFunc("/api/posts", handlers.ShowPostHandler)
 
 	port := ":8080"
 	fmt.Println("Server started at http://localhost" + port)

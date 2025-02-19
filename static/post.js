@@ -1,33 +1,64 @@
-export function showPost() {
-	var post = getPosts()
-	var postDiv, h2, p, image, commentsButton
-	postDiv = document.createElement("div")
-	postDiv.className = "post"
+export function showPosts(posts) {
+    const postContainer = document.getElementById("postContainer");
+    postContainer.innerHTML = ''; // Clear existing posts
 
-	h2 = document.createElement("h2")
-	h2.textContent = post.username
+    posts.forEach(post => {
+		console.log(post)
+        const postDiv = document.createElement("div");
+        postDiv.className = "post";
 
-	p = document.createElement("p")
-	p.textContent = post.content
+        const h2 = document.createElement("h2");
+        h2.textContent = `Title: ${post.Title}`;
 
-	image = document.createElement("img")
-	image.src = post.image
+        const author = document.createElement("p");
+        author.textContent = `Posted by: ${post.Sender.Username}`;
 
-	postDiv.appendChild(h2)
-	if (image.src !== '') {
-		postDiv.appendChild(image)
-	}
-	postDiv.appendChild(p)
+        const content = document.createElement("p");
+        content.textContent = `Content: ${post.Content}`;
 
-	commentsButton = document.createElement("button")
-	commentsButton.textContent = "Comments (" + post.comments.length + ")"
-	commentsButton.addEventListener("click", function() {
+        const date = document.createElement("p");
+        date.textContent = `Date: ${post.Date}`;
 
+        postDiv.appendChild(h2);
+        postDiv.appendChild(author);
+        postDiv.appendChild(content);
+        postDiv.appendChild(date);
 
-    })
-	postDiv.appendChild(commentsButton)
+        if (post.picture) {
+            const image = document.createElement("img");
+            image.src = post.picture;
+            postDiv.appendChild(image);
+        }
 
-	document.getElementById("postContainer").appendChild(postDiv)
+        const commentsButton = document.createElement("button");
+        commentsButton.textContent = "Comments";
+        commentsButton.addEventListener("click", function() {
+            // Implement comment fetching logic here
+        });
+        postDiv.appendChild(commentsButton);
+
+        postContainer.appendChild(postDiv);
+    });
+}
+
+export async function getPosts() {
+    return await fetch('/api/posts')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("Received data:", data);
+            showPosts(data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Optionally, display an error message to the user
+            const postContainer = document.getElementById("postContainer");
+            postContainer.innerHTML = '<p>Error loading posts. Please try again later.</p>';
+        });
 }
 
 export function showComments() {
@@ -54,10 +85,6 @@ export function showComments() {
     commentsDiv.appendChild(ul)
 
     document.getElementById("postContainer").appendChild(commentsDiv)
-}
-
-export function getPosts() {
-
 }
 
 export function getComments() {

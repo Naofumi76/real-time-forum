@@ -56,8 +56,7 @@ func FetchPosts() []Post {
 	query := `
         SELECT p.id, p.sender, p.parent_id, p.title, p.content, p.picture, p.date,
                IFNULL(u.username, 'Deleted User') AS username,
-               IFNULL(u.email, '') AS email,
-               IFNULL(u.picture, 'default-profile.png') AS picture
+               IFNULL(u.email, '') AS email
         FROM posts p
         LEFT JOIN users u ON p.sender = u.id
         ORDER BY p.id DESC;`
@@ -72,7 +71,7 @@ func FetchPosts() []Post {
 	var posts []Post
 	for rows.Next() {
 		var post Post
-		err := rows.Scan(&post.ID, &post.Sender.ID, &post.ParentID, &post.Title, &post.Content, &post.Picture, &post.Date, &post.Sender.Username, &post.Sender.Email, &post.Sender.Picture)
+		err := rows.Scan(&post.ID, &post.Sender.ID, &post.ParentID, &post.Title, &post.Content, &post.Picture, &post.Date, &post.Sender.Username, &post.Sender.Email)
 		if err != nil {
 			log.Printf("Error scanning row: %v", err)
 			continue
