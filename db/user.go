@@ -23,6 +23,10 @@ func CreateUser(username, email string, age int, gender, first_name, last_name, 
 		return nil, errors.New("the email address or username already exists")
 	}
 
+	if age == 0 {
+		return nil, errors.New("age is not a number or cannot be 0")
+	}
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err

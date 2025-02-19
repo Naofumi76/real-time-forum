@@ -57,43 +57,45 @@ export function signupPage() {
 }
 
 export function submitSignupForm(event) {
-    event.preventDefault();
+    event.preventDefault(); // Prevent page reload
 
     // Collect all form data
     const formData = {
-        username: document.querySelector("input[placeholder='Your username']").value,
-        email: document.querySelector("input[placeholder='Your email']").value,
-        password: document.querySelector("input[placeholder='Your password']").value,
-        age: parseInt(document.querySelector("input[placeholder='Your age']").value),
-        gender: document.querySelector("input[placeholder='Your gender']").value,
-        first_name: document.querySelector("input[placeholder='Your first name']").value,
-        last_name: document.querySelector("input[placeholder='Your last name']").value,
+        username: document.querySelector("input[placeholder='Your username']").value.trim(),
+        email: document.querySelector("input[placeholder='Your email']").value.trim(),
+        password: document.querySelector("input[placeholder='Your password']").value.trim(),
+        age: parseInt(document.querySelector("input[placeholder='Your age']").value.trim()) || 0,
+        gender: document.querySelector("input[placeholder='Your gender']").value.trim(),
+        first_name: document.querySelector("input[placeholder='Your first name']").value.trim(),
+        last_name: document.querySelector("input[placeholder='Your last name']").value.trim(),
     };
+
+    // Basic client-side validation
+    if (!formData.username || !formData.email || !formData.password || !formData.first_name || !formData.last_name) {
+        alert("Please fill in all required fields.");
+        return;
+    }
 
     fetch("http://localhost:8080/signup", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
     })
         .then(async (response) => {
             const text = await response.text();
-
             try {
-                return JSON.parse(text); // Only parse if response is valid JSON
-            } catch (error) {
+                return JSON.parse(text); // Parse only if valid JSON
+            } catch {
                 throw new Error("Invalid JSON response from server");
             }
         })
         .then((data) => {
             if (data.success) {
                 alert(data.message);
+                homePage(); // Load homepage only on success
             } else {
                 alert("Error: " + data.message);
             }
         })
-		.then(() => {
-			homePage()	
-		})
+        .catch((error) => console.error("Error:", error));
 }
