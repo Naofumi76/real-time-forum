@@ -8,11 +8,11 @@ import (
 )
 
 type CreatePostRequest struct {
-	Title    string  `json:"title"`
-	Content  string  `json:"content"`
-	Picture  string  `json:"picture"`
-	Sender   db.User `json:"sender"`
-	ParentID *int    `json:"parent_id"`
+	Title    string `json:"title"`
+	Content  string `json:"content"`
+	Picture  string `json:"picture"`
+	SenderID int    `json:"sender_id"`
+	ParentID *int   `json:"parent_id"`
 }
 
 type CreatePostResponse struct {
@@ -35,5 +35,18 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db.CreatePost(req.Sender.ID, req.Title, req.Content, req.Picture, time.Now().Format("2006-01-02 15:04:05"), req.ParentID)
+	db.CreatePost(req.SenderID, req.Title, req.Content, req.Picture, time.Now().Format("2006-01-02 15:04:05"), req.ParentID)
+
+	// Create a success response
+	response := CreatePostResponse{
+		Success: true,
+		Message: "Post successfully created",
+	}
+
+	// Set the response header to JSON
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	// Encode and send the response
+	json.NewEncoder(w).Encode(response)
 }

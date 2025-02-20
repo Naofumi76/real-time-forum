@@ -42,6 +42,7 @@ export function showPosts(posts) {
 }
 
 export async function getPosts() {
+	var posts
     return await fetch('/api/posts')
         .then(response => {
             if (!response.ok) {
@@ -51,13 +52,16 @@ export async function getPosts() {
         })
         .then(data => {
             console.log("Received data:", data);
+			posts = data;
             showPosts(data);
         })
         .catch(error => {
-            console.error('Error:', error);
-            // Optionally, display an error message to the user
-            const postContainer = document.getElementById("postContainer");
-            postContainer.innerHTML = '<p>Error loading posts. Please try again later.</p>';
+			if (posts) {
+				console.error('Error:', error);
+				// Optionally, display an error message to the user
+				const postContainer = document.getElementById("postContainer");
+				postContainer.innerHTML = '<p>Error loading posts. Please try again later.</p>';
+			}
         });
 }
 
@@ -130,13 +134,11 @@ export function submitPost() {
 	const formData = {
 		title: document.getElementById("postTitle").value,
         content: document.getElementById("postContent").value,
-        picture: document.getElementById("postImage").files[0],
-        sender: {
-            username: "NathanTemp"
-        }
+        picture: document.getElementById("postImage").files[0] || '',
+        sender_id: 1 // Change when sessions are available
 	}
 
-	if (!formData.title || !formData.content || !formData.picture || !formData.sender) {
+	if (!formData.title || !formData.content || !formData.sender_id) {
 		alert("Please fill in all required fields.");
         return;
 	}
@@ -160,10 +162,10 @@ export function submitPost() {
 			document.getElementById("postContainer").innerHTML = ""
             getPosts();
 		} else {
-			alert("Error: " + data.message);
+			alert("Error data.success: " + data.message);
 		}
 	})
-	.catch((error) => console.error("Error:" , error))
+	.catch((error) => console.error("Error catched:" , error))
 
 
     // Close the modal after submission

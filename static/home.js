@@ -11,10 +11,9 @@ export function homePage() {
     postContainer.id = "postContainer";
     document.body.appendChild(postContainer);
 
-	const createPost = document.createElement("div") 
-	createPost.textContent = "+"
+	const createPost = document.createElement("button") 
+	createPost.textContent = "Créer un post"
 	createPost.style.cursor = "pointer"
-	createPost.style.background = "blue"
 	createPost.addEventListener("click", post.createPost)
 	document.body.appendChild(createPost)
 	
