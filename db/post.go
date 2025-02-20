@@ -10,7 +10,7 @@ import (
 )
 
 // CreatePost handles both posts and comments, depending on parentID
-func CreatePost(sender int, categories []string, title, content, picture, date string, parentID *int) error {
+func CreatePost(sender int, title, content, picture, date string, parentID *int) error {
 	// Open the database connection
 	db := GetDB()
 	defer db.Close()
