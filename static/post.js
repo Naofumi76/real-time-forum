@@ -24,16 +24,16 @@ export function showPosts(posts) {
         postDiv.appendChild(content);
         postDiv.appendChild(date);
 
-        if (post.picture) {
+        if (post.Picture) {
             const image = document.createElement("img");
-            image.src = post.picture;
+            image.src = `data:image/png;base64,${post.Picture}`; 
+            image.style.maxWidth = "300px"; 
             postDiv.appendChild(image);
         }
 
         const commentsButton = document.createElement("button");
         commentsButton.textContent = "Comments";
         commentsButton.addEventListener("click", function() {
-            // Implement comment fetching logic here
         });
         postDiv.appendChild(commentsButton);
 
@@ -130,43 +130,71 @@ export function createPost() {
 }
 
 export function submitPost() {
+    const title = document.getElementById("postTitle").value;
+    const content = document.getElementById("postContent").value;
+    const imageFile = document.getElementById("postImage").files[0];
+    const sender_id = 1; // Change when sessions are available
 
-	const formData = {
-		title: document.getElementById("postTitle").value,
-        content: document.getElementById("postContent").value,
-        picture: document.getElementById("postImage").files[0] || '',
-        sender_id: 1 // Change when sessions are available
-	}
-
-	if (!formData.title || !formData.content || !formData.sender_id) {
-		alert("Please fill in all required fields.");
+    if (!title || !content || !sender_id) {
+        alert("Please fill in all required fields.");
         return;
-	}
+    }
 
-	fetch("http://localhost:8080/create-post", {
-		method: "POST",
+    if (imageFile) {
+        const reader = new FileReader();
+        reader.readAsDataURL(imageFile);
+        reader.onload = function () {
+            const base64String = reader.result.split(",")[1]; // Extract only the raw Base64 data
+
+            const formData = {
+                title: title,
+                content: content,
+                picture: base64String,
+                sender_id: sender_id
+            };
+
+            sendPostData(formData);
+        };
+        reader.onerror = function (error) {
+            console.error("Error converting image:", error);
+            alert("Failed to process image.");
+        };
+    } else {
+        // If no image, send data without a picture
+        const formData = {
+            title: title,
+            content: content,
+            picture: "",
+            sender_id: sender_id
+        };
+        sendPostData(formData);
+    }
+}
+
+function sendPostData(formData) {
+    fetch("http://localhost:8080/create-post", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
-	})
-	.then(async (response) => {
-		const text = await response.text();
+    })
+    .then(async (response) => {
+        const text = await response.text();
         try {
             return JSON.parse(text); // Parse only if valid JSON
         } catch {
             throw new Error("Invalid JSON response from server");
         }
-	})
-	.then((data) => {
-		if (data.success) {
-			alert(data.message);
-			document.getElementById("postContainer").innerHTML = ""
+    })
+    .then((data) => {
+        if (data.success) {
+            alert(data.message);
+            document.getElementById("postContainer").innerHTML = "";
             getPosts();
-		} else {
-			alert("Error data.success: " + data.message);
-		}
-	})
-	.catch((error) => console.error("Error catched:" , error))
-
+        } else {
+            alert("Error: " + data.message);
+        }
+    })
+    .catch((error) => console.error("Error:", error));
 
     // Close the modal after submission
     document.body.removeChild(document.querySelector(".modal"));
