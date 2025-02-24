@@ -1,58 +1,109 @@
-export async function showComments(postId) {
-    const comments = await getComments(postId);
-    if (!comments) return; // Exit if there was an error fetching comments
+import * as home from "./home.js";
 
-     // Clear any existing comments
-     const existingComments = document.querySelector('.comments');
-     if (existingComments) {
-         existingComments.remove();
-     }
+export async function showComments(comments, originalPost) {
+	function createPostElement(post) {
+		const postDiv = document.createElement("div");
+		postDiv.className = "post";
+	
+		const h2 = document.createElement("h2");
+		h2.textContent = `Title: ${post.Title}`;
+	
+		const author = document.createElement("p");
+		author.textContent = `Posted by: ${post.Sender.Username}`;
+	
+		const content = document.createElement("p");
+		content.textContent = `Content: ${post.Content}`;
+	
+		const date = document.createElement("p");
+		date.textContent = `Date: ${post.Date}`;
+	
+		postDiv.appendChild(h2);
+		postDiv.appendChild(author);
+		postDiv.appendChild(content);
+		postDiv.appendChild(date);
+	
+		if (post.Picture) {
+			const image = document.createElement("img");
+			image.src = `data:image/png;base64,${post.Picture}`;
+			image.style.maxWidth = "300px";
+			postDiv.appendChild(image);
+		}
+	
+		return postDiv;
+	}
 
-     var commentsDiv = document.createElement("div");
-     commentsDiv.className = "comments";
+	document.getElementById("welcomeMessage").remove()
+	document.getElementById("createPostButton").remove()
 
-     var ul = document.createElement("ul");
-     for (var i = 0; i < comments.length; i++) {
-         var li = document.createElement("li");
-         var h3 = document.createElement("h3");
-         h3.textContent = comments[i].Sender.Username;
-         li.appendChild(h3);
+    postContainer.innerHTML = "";
 
-         var content = document.createElement("p");
-         content.textContent = comments[i].Content;
-         li.appendChild(content);
 
-         if (comments[i].Picture) {
-             var image = document.createElement("img");
-             image.src = `data:image/png;base64,${comments[i].Picture}`;
-             image.style.maxWidth = "200px";
-             li.appendChild(image);
-         }
+	const originalPostDiv = document.createElement("div");
+    // Create and append the original post
+	const originalPostText = document.createElement('p')
+	originalPostText.textContent = `Original post : `;
+    const originalPostContainer = createPostElement(originalPost);
 
-         ul.appendChild(li);
-     }
+    originalPostDiv.appendChild(originalPostText)
+	originalPostDiv.appendChild(originalPostContainer)
 
-     commentsDiv.appendChild(ul);
+	postContainer.appendChild(originalPostDiv);
 
-     // Append comments to the corresponding post div
-     const postDiv = document.querySelector(`.post h2:contains("${postId}")`).closest('.post');
-     postDiv.appendChild(commentsDiv);
+	if (comments) {
+		comments.forEach(comment => {
+			const commentDiv = createPostElement(comment);
+			postContainer.appendChild(commentDiv);
+		});
+	}
+
+    const createCommentDiv = document.createElement("div");
+
+    const commentWrite = document.createElement("input");
+    commentWrite.type = "text";
+    commentWrite.placeholder = "Write your comment!";
+
+    const createComment = document.createElement("button");
+    createComment.textContent = "Submit";
+    createComment.onclick = async () => {
+        // Update this part to create comments
+    }
+
+    createCommentDiv.appendChild(commentWrite);
+    createCommentDiv.appendChild(createComment);
+    document.body.appendChild(createCommentDiv);
+
+    const homeButton = document.createElement("button");
+    homeButton.textContent = "Home";
+
+    const handleClick = () => {
+        postContainer.innerHTML = "";
+        createCommentDiv.remove();
+        homeButton.removeEventListener("click", handleClick);
+        homeButton.remove();
+        home.homePage();
+    };
+
+    homeButton.addEventListener("click", handleClick);
+    document.body.appendChild(homeButton);
 }
 
-export async function getComments(postId) {
+export async function getComments(post) {
+	var comments
     try {
-        const response = await fetch(`/api/comments?post_id=${postId}`);
+        const response = await fetch(`/api/comments?post_id=${post.ID}`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
         console.log("Received data:", data);
-        return data;
+		comments = data
+		showComments(data, post)
     } catch (error) {
-        console.error('Error:', error);
-        // Optionally, display an error message to the user
-        const postContainer = document.getElementById("postContainer");
-        postContainer.innerHTML = '<p>Error loading comments. Please try again later.</p>';
-        return null;
+		if (comments) {
+			console.error('Error:', error);
+			// Optionally, display an error message to the user
+			const postContainer = document.getElementById("postContainer");
+			postContainer.innerHTML = '<p>Error loading comments. Please try again later.</p>';
+		}
     }
 }

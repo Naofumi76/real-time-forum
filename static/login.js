@@ -55,10 +55,11 @@ export function submitLoginForm(event) {
 		})
 		.then((data) => {
 			if (data.success) {
-				console.log("Login successful");
+				// console.log("Login successful");
 				homePage(); // Load homepage only on success
 			} else {
-				console.error("Login failed:", data.message);
+				// console.error("Login failed:", data.message);
+				alert("User not found, please login again");
 			}
 		})
 		.catch((error) => console.error("Error:", error));

@@ -34,7 +34,9 @@ export function showPosts(posts) {
 
         const commentsButton = document.createElement("button");
         commentsButton.textContent = "Comments";
-        commentsButton.addEventListener("click", () => comments.showComments(post.ID));
+        commentsButton.addEventListener("click", () => {
+			comments.getComments(post)
+		});
         postDiv.appendChild(commentsButton);
 
         postContainer.appendChild(postDiv);
