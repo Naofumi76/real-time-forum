@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"strings"
 	"encoding/json"
 	"net/http"
 	"real-time/db"
@@ -42,10 +43,9 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Find user by email first, then by username if email is empty
 	var user *db.User
-	if req.Email != "" {
-		user, err = db.SelectUserByEmail(req.Email)
-	}
-	if (user == nil || err != nil) && req.Username != "" {
+	if strings.Contains(req.Username, "@") {
+		user, err = db.SelectUserByEmail(req.Username)
+	} else {
 		user, err = db.SelectUserByUsername(req.Username)
 	}
 

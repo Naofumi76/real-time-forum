@@ -7,18 +7,13 @@ export function loginPage() {
     formLogin.id = 'loginDiv'
 
     h1Login = document.createElement('h1')
-    h1Login.textContent = 'Login to the forum'
+    h1Login.textContent = 'Login'
     formLogin.appendChild(h1Login)
 
 	inputUsername = document.createElement('input')
 	inputUsername.type = 'text'
-	inputUsername.placeholder = 'Your username'
+	inputUsername.placeholder = 'Your username or email'
 	formLogin.appendChild(inputUsername)
-
-    inputEmail = document.createElement('input')
-    inputEmail.type = 'email'
-    inputEmail.placeholder = 'Your email'
-    formLogin.appendChild(inputEmail)
 
     inputPassword = document.createElement('input')
     inputPassword.type = 'password'
@@ -26,6 +21,7 @@ export function loginPage() {
     formLogin.appendChild(inputPassword)
 
 	submitButton = document.createElement('button')
+	submitButton.className = 'btn-primary'
 	submitButton.textContent = 'Login'
 	submitButton.addEventListener('click', submitLoginForm)
 
@@ -38,8 +34,7 @@ export function submitLoginForm(event) {
 	event.preventDefault(); // Prevent page reload
 
 	const formData = {
-		email: document.querySelector("input[placeholder='Your email']").value.trim(),
-		username: document.querySelector("input[placeholder='Your username']").value.trim(),
+		username: document.querySelector("input[placeholder='Your username or email']").value.trim(),
 		password: document.querySelector("input[placeholder='Your password']").value.trim(),
 	};
 
