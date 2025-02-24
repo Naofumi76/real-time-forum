@@ -92,50 +92,41 @@ func FetchPosts() []Post {
 	return posts
 }
 
-func FetchComments() []Post {
+func FetchComments(postID int) []Post {
 	db := GetDB()
 	defer db.Close()
 
 	query := `
         SELECT p.id, p.sender, p.parent_id, p.title, p.content, p.picture, p.date,
                IFNULL(u.username, 'Deleted User') AS username,
-               IFNULL(u.email, '') AS email,
-               IFNULL(u.picture, 'default-profile.png') AS picture
+               IFNULL(u.email, '') AS email
         FROM posts p
-        JOIN categories c ON p.category = c.id
         LEFT JOIN users u ON p.sender = u.id
+        WHERE p.parent_id = ?
         ORDER BY p.id DESC;`
 
-	rows, err := db.Query(query)
+	rows, err := db.Query(query, postID)
 	if err != nil {
 		log.Printf("Error executing query: %v", err)
 		return nil
 	}
 	defer rows.Close()
 
-	var posts []Post
+	var comments []Post
 	for rows.Next() {
-		var post Post
-		err := rows.Scan(&post.ID, &post.Sender.ID, &post.ParentID, &post.Title, &post.Content, &post.Picture, &post.Date, &post.Sender.Username, &post.Sender.Email, &post.Sender.Picture)
+		var comment Post
+		err := rows.Scan(&comment.ID, &comment.Sender.ID, &comment.ParentID, &comment.Title, &comment.Content, &comment.Picture, &comment.Date, &comment.Sender.Username, &comment.Sender.Email)
 		if err != nil {
 			log.Printf("Error scanning row: %v", err)
 			continue
 		}
 
-		post.NbComments, err = NbCommentsFromPost(post.ID)
-		if err != nil {
-			post.NbComments = 0
-			fmt.Println("Error at fetching nb comments: ", err)
-		}
-
-		if post.ParentID != 0 {
-			posts = append(posts, post)
-		}
+		comments = append(comments, comment)
 	}
 	if err = rows.Err(); err != nil {
 		log.Printf("Error during row iteration: %v", err)
 	}
-	return posts
+	return comments
 }
 
 func PostExist(id int) bool {

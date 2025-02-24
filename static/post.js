@@ -1,3 +1,4 @@
+import * as comments from './comments.js'
 export function showPosts(posts) {
     const postContainer = document.getElementById("postContainer");
     postContainer.innerHTML = ''; // Clear existing posts
@@ -33,8 +34,7 @@ export function showPosts(posts) {
 
         const commentsButton = document.createElement("button");
         commentsButton.textContent = "Comments";
-        commentsButton.addEventListener("click", function() {
-        });
+        commentsButton.addEventListener("click", () => comments.showComments(post.ID));
         postDiv.appendChild(commentsButton);
 
         postContainer.appendChild(postDiv);
@@ -198,34 +198,4 @@ function sendPostData(formData) {
 
     // Close the modal after submission
     document.body.removeChild(document.querySelector(".modal"));
-}
-
-export function showComments() {
-	var comments = getComments()
-	var commentsDiv, ul
-    commentsDiv = document.createElement("div")
-    commentsDiv.className = "comments"
-	
-    ul = document.createElement("ul")
-    for (var i = 0; i < comments.length; i++) {
-		var li = document.createElement("li")
-		var image = document.createElement("img")
-		var h3 = document.createElement("h3")
-		h3.textContent = comments[i].username
-		image.src = comments[i].image
-        li.textContent = comments[i].content
-        ul.appendChild(h3)
-		if (image.src!== '') {
-            li.appendChild(image)
-        }
-        ul.appendChild(li)
-    }
-
-    commentsDiv.appendChild(ul)
-
-    document.getElementById("postContainer").appendChild(commentsDiv)
-}
-
-export function getComments() {
-
 }

@@ -15,6 +15,7 @@ func main() {
 	http.HandleFunc("/signup", handlers.SignupHandler)
 	http.HandleFunc("/login", handlers.LoginHandler)
 	http.HandleFunc("/api/posts", handlers.ShowPostHandler)
+	http.HandleFunc("/api/comments", handlers.ShowCommentHandler)
 	http.HandleFunc("/create-post", handlers.CreatePostHandler)
 
 	port := ":8080"
