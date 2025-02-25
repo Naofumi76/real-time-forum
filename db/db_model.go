@@ -22,3 +22,12 @@ type Post struct {
 	Date       string
 	NbComments int
 }
+
+type Message struct {
+	ID       int
+	Sender   User
+	Receiver User
+	Content  string
+	Date     string
+	Picture  string
+}

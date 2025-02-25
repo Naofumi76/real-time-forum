@@ -39,6 +39,15 @@ func GetDB() *sql.DB {
 			connected_user INTEGER NOT NULL,
 			uuid STRING NOT NULL,
 			FOREIGN KEY (connected_user) REFERENCES users(id)
+		); CREATE TABLE IF NOT EXISTS messages (
+		    id INTEGER PRIMARY KEY AUTOINCREMENT,
+            sender INTEGER NOT NULL,
+            receiver INTEGER NOT NULL,
+            content TEXT NOT NULL,
+            date TEXT NOT NULL
+			picture LONGTEXT,
+            FOREIGN KEY (sender) REFERENCES users(id),
+            FOREIGN KEY (receiver) REFERENCES users(id)	
 		)`
 
 	// Start a transaction
