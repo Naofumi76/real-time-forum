@@ -33,7 +33,6 @@ export async function showComments(comments, originalPost) {
 	}
 
 	document.getElementById("welcomeMessage").remove()
-	document.getElementById("createPostButton").remove()
 
     postContainer.innerHTML = "";
 

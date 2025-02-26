@@ -10,12 +10,15 @@ export function showPosts(posts) {
 
         const h2 = document.createElement("h2");
         h2.textContent = `Title: ${post.Title}`;
+        h2.className = "title";
 
         const author = document.createElement("p");
         author.textContent = `Posted by: ${post.Sender.Username}`;
+        author.className = "sender";
 
         const content = document.createElement("p");
-        content.textContent = `Content: ${post.Content}`;
+        content.textContent = `${post.Content}`;
+        content.className = "post-content";
 
         const date = document.createElement("p");
         date.textContent = `Date: ${post.Date}`;
@@ -27,6 +30,7 @@ export function showPosts(posts) {
 
         if (post.Picture) {
             const image = document.createElement("img");
+            image.className = "post-image";
             image.src = `data:image/png;base64,${post.Picture}`; 
             image.style.maxWidth = "300px"; 
             postDiv.appendChild(image);
@@ -34,6 +38,7 @@ export function showPosts(posts) {
 
         const commentsButton = document.createElement("button");
         commentsButton.textContent = "Comments";
+        commentsButton.className = "comments";
         commentsButton.addEventListener("click", () => {
 			comments.getComments(post)
 		});
