@@ -1,4 +1,6 @@
 export function contactPage(conversations, onlineUsers) {
+	// Will have to create code to get the conversations of the user and online users
+	
 	var contactContainer, onlineUserContainer
     document.body.innerHTML = ""
 
@@ -39,7 +41,7 @@ export function openPrivateMessage(firstUser, secondUser) {
 
 	// Expecting messages to contain object message with values .Content and .Sender
 	var messages = getMessages(firstUser, secondUser)
-	
+
 	// For each message, create the visual
 	messages.forEach(message => {
 		var finalMessage = document.createElement("div")
@@ -95,7 +97,8 @@ export function sendMessage(firstUser, secondUser, messageContent) {
 	const formData = {
 		message: message,
         sender: firstUser,
-        receiver: secondUser
+        receiver: secondUser,
+		date: new Date()
 	}
 	fetch("http://localhost:8080/sendMessage", {
         method: "POST",
@@ -113,7 +116,7 @@ export function sendMessage(firstUser, secondUser, messageContent) {
 	.then((data) => {
 		if (data.success) {
 			// If message successfully sent, get the latest messages
-            alert(data.message)
+            alert(data.response)
 			document.getElementById("messageContainer").innerHTML = ""
 			openPrivateMessage(firstUser, secondUser)
         } else {
@@ -123,23 +126,35 @@ export function sendMessage(firstUser, secondUser, messageContent) {
 	.catch((error) => console.error("Error:", error));
 }
 
-export function getMessages(firstUser, secondUser) {
+export async function getMessages(firstUser, secondUser) {
 	// Fetch messages from the server
-    return fetch(`http://localhost:8080/getMessages?sender=${firstUser}&receiver=${secondUser}`)
-        .then(async (response) => {
-            const text = await response.text()
-            try {
-                return JSON.parse(text)
-            } catch {
-                throw new Error("Invalid JSON response from server")
-            }
-        })
-        .then((data) => {
-            if (data.success) {
-                return data.messages
-            } else {
-                throw new Error("Error: " + data.message)
-            }
-        })
-        .catch((error) => console.error("Error:", error))
+    return fetch("http://localhost:8080/getMessages", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            sender: firstUser,
+            receiver: secondUser
+        }),
+    })
+    .then(async (response) => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`)
+        }
+        const text = await response.text()
+        try {
+            return JSON.parse(text)
+        } catch {
+            throw new Error("Invalid JSON response from server")
+        }
+    })
+    .then((data) => {
+        if (data.success) {
+            return data.messages
+        } else {
+            throw new Error("Error: " + data.response)
+        }
+    })
+    .catch((error) => console.error("Error:", error))
 }

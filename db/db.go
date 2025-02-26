@@ -44,8 +44,7 @@ func GetDB() *sql.DB {
             sender INTEGER NOT NULL,
             receiver INTEGER NOT NULL,
             content TEXT NOT NULL,
-            date TEXT NOT NULL
-			picture LONGTEXT,
+            date TEXT NOT NULL,
             FOREIGN KEY (sender) REFERENCES users(id),
             FOREIGN KEY (receiver) REFERENCES users(id)	
 		)`

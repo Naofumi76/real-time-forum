@@ -5,12 +5,12 @@ import (
 	"log"
 )
 
-func CreateMessage(sender, receiver int, content, date, picture string) {
+func CreateMessage(sender, receiver int, content, date string) {
 	db := GetDB()
 	defer db.Close()
 
-	query := "INSERT INTO messages (sender, receiver, content, date, picture) VALUES (?,?,?,?,?)"
-	_, err := db.Exec(query, sender, receiver, content, date, picture)
+	query := "INSERT INTO messages (sender, receiver, content, date) VALUES (?,?,?,?)"
+	_, err := db.Exec(query, sender, receiver, content, date)
 	if err != nil {
 		log.Printf("Error creating message: %v", err)
 	}
@@ -28,14 +28,14 @@ func FetchMessages(sender, receiver int) []Message {
 			return nil
 		}
 		log.Printf("Error executing query: %v", err)
-		return nil
+		return []Message{}
 	}
 	defer rows.Close()
 
 	var messages []Message
 	for rows.Next() {
 		var message Message
-		err = rows.Scan(&message.ID, &message.Sender.ID, &message.Receiver.ID, &message.Content, &message.Date, &message.Picture)
+		err = rows.Scan(&message.ID, &message.Sender.ID, &message.Receiver.ID, &message.Content, &message.Date)
 		if err != nil {
 			log.Printf("Error scanning row: %v", err)
 			continue
@@ -44,7 +44,7 @@ func FetchMessages(sender, receiver int) []Message {
 	}
 	if err = rows.Err(); err != nil {
 		log.Printf("Error iterating rows: %v", err)
-		return nil
+		return []Message{}
 	}
 	return messages
 }
