@@ -46,7 +46,8 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create user
-	_, err = db.CreateUser(req.Username, req.Email, req.Age, req.Gender, req.FirstName, req.LastName, req.Password)
+	var user *db.User
+	user, err = db.CreateUser(req.Username, req.Email, req.Age, req.Gender, req.FirstName, req.LastName, req.Password)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(SignupResponse{Success: false, Message: err.Error()})
@@ -58,6 +59,8 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 		Success: true,
 		Message: "User registered successfully",
 	}
+
+	db.SetSession(w, user.Username)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

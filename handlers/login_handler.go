@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"strings"
 	"encoding/json"
 	"net/http"
 	"real-time/db"
+	"strings"
 )
 
 // UserLoginRequest represents the JSON request structure for login
@@ -16,8 +16,9 @@ type UserLoginRequest struct {
 
 // LoginResponse represents the JSON response structure for login
 type LoginResponse struct {
-	Success bool   `json:"success"`
-	Message string `json:"message"`
+	Success  bool   `json:"success"`
+	Message  string `json:"message"`
+	Username string `json:"username"`
 }
 
 // LoginHandler handles user authentication
@@ -68,6 +69,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		Success: true,
 		Message: "Login successful",
 	}
+
+	db.SetSession(w, user.Username)
 
 	// Set the response header to JSON
 	w.Header().Set("Content-Type", "application/json")

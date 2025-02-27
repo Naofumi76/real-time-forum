@@ -4,7 +4,6 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/gofrs/uuid"
 )
@@ -116,7 +115,7 @@ func SetSession(w http.ResponseWriter, username string) {
 	cookie := http.Cookie{
 		Name:     "session_token",
 		Value:    sessionUUID.String(),
-		Expires:  time.Now().Add(1 * time.Hour),
+		MaxAge:   3600,
 		HttpOnly: true,
 		Path:     "/",
 	}
