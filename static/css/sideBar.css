@@ -24,7 +24,7 @@ nav ul li {
     width: 100%;
 }
 
-nav ul li  {
+nav ul li {
     text-decoration: none;
     color: #1a2238;
     display: flex;
@@ -39,11 +39,11 @@ nav ul li  svg {
     height: 30px;
 }
 
-nav ul li a svg path {
+nav ul li svg path {
     transition: 0.2s all ease;
 }
 
-nav ul li a span {
+nav ul li span {
     position: absolute;
     background-color: #fefefe;
     padding: 2px 15px;
@@ -56,25 +56,29 @@ nav ul li a span {
     transition: 0.2s all ease;
 }
 
-nav ul li a.active,
-nav ul li a:hover {
-    color: #c8dc71;
+nav ul li.active,
+nav ul li:hover {
+    color: #1c205f;
 }
 
-nav ul li a.active span,
-nav ul li a:hover span {
+nav ul li.active span,
+nav ul li:hover span {
     opacity: 1;
     visibility: visible;
     margin-left: 50px;
 }
 
-nav.active ul li a span {
+nav.active ul li span {
     position: relative;
     opacity: 1;
     visibility: visible;
     margin-left: 0;
 }
 
-nav.active ul li a:hover span {
+nav.active ul li:hover span {
     margin-left: 0;
+}
+
+nav a{
+    text-decoration: none;
 }

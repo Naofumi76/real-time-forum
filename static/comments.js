@@ -1,21 +1,44 @@
 import * as home from "./home.js";
+import { sendPostData } from "./post.js";
 
 export async function showComments(comments, originalPost) {
 	function createPostElement(post) {
 		const postDiv = document.createElement("div");
 		postDiv.className = "post";
+
+		const parent_id = document.createElement("input");
+		parent_id.type = "hidden";
+		parent_id.id = "parent_id";
+		parent_id.value = `${post.ID}`;
+		postDiv.appendChild(parent_id);
+
+		const commentTitle = document.createElement("input");
+		commentTitle.type = "hidden";
+		commentTitle.value = `${post.Title}`;
+		commentTitle.id = "comment_title";
+		postDiv.appendChild(commentTitle);
+
 	
-		const h2 = document.createElement("h2");
-		h2.textContent = `Title: ${post.Title}`;
-	
+		const h2 = document.createElement("h2");		
+		if (post.ParentID === 0){
+			h2.textContent = `Title: ${post.Title}`;
+			h2.className = "title";
+		} else {
+			h2.textContent = `Comment of : ${post.Title}`;
+			h2.className = "title";
+		}
+			
 		const author = document.createElement("p");
 		author.textContent = `Posted by: ${post.Sender.Username}`;
+		author.className = "sender";
 	
 		const content = document.createElement("p");
 		content.textContent = `Content: ${post.Content}`;
+		content.className = "post-content";
 	
 		const date = document.createElement("p");
 		date.textContent = `Date: ${post.Date}`;
+
 	
 		postDiv.appendChild(h2);
 		postDiv.appendChild(author);
@@ -32,10 +55,12 @@ export async function showComments(comments, originalPost) {
 		return postDiv;
 	}
 
-	document.getElementById("welcomeMessage").remove()
+	//document.getElementById("welcomeMessage").remove()
 
     postContainer.innerHTML = "";
 
+	const commentContainer = document.createElement("div");
+	commentContainer.id = "commentContainer";
 
 	const originalPostDiv = document.createElement("div");
     // Create and append the original post
@@ -51,19 +76,24 @@ export async function showComments(comments, originalPost) {
 	if (comments) {
 		comments.forEach(comment => {
 			const commentDiv = createPostElement(comment);
-			postContainer.appendChild(commentDiv);
+			commentContainer.appendChild(commentDiv);
 		});
 	}
 
-    const createCommentDiv = document.createElement("div");
+	postContainer.appendChild(commentContainer);
+
+    const createCommentDiv = document.createElement("div");	
+	createCommentDiv.id = "comment-input-container";
 
     const commentWrite = document.createElement("input");
+	commentWrite.id = "comment-input";
     commentWrite.type = "text";
     commentWrite.placeholder = "Write your comment!";
 
     const createComment = document.createElement("button");
     createComment.textContent = "Submit";
     createComment.onclick = async () => {
+		submitComment();
         // Update this part to create comments
     }
 
@@ -71,19 +101,6 @@ export async function showComments(comments, originalPost) {
     createCommentDiv.appendChild(createComment);
     document.body.appendChild(createCommentDiv);
 
-    const homeButton = document.createElement("button");
-    homeButton.textContent = "Home";
-
-    const handleClick = () => {
-        postContainer.innerHTML = "";
-        createCommentDiv.remove();
-        homeButton.removeEventListener("click", handleClick);
-        homeButton.remove();
-        home.homePage();
-    };
-
-    homeButton.addEventListener("click", handleClick);
-    document.body.appendChild(homeButton);
 }
 
 export async function getComments(post) {
@@ -105,4 +122,27 @@ export async function getComments(post) {
 			postContainer.innerHTML = '<p>Error loading comments. Please try again later.</p>';
 		}
     }
+}
+
+function submitComment(){
+	const title = document.getElementById("comment_title").value;
+	const content = document.getElementById("comment-input").value;
+	const parent_id = document.getElementById("parent_id").value;
+	const sender_id = 1; // Update this code when session are available C:<
+
+	if (!content ){
+		alert("Please write a comment");
+        return;
+	}
+		const formData = {
+			title: title,
+			content: content,
+			picture:"",
+            parent_id: parent_id ? parseInt(parent_id) : null,
+            sender_id: sender_id
+		}
+
+	
+	document.getElementById('comment-input-container').remove();
+	sendPostData(formData, true);
 }
