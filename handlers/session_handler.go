@@ -7,7 +7,7 @@ import (
 	"real-time/db"
 )
 
-func CheckSessionHandler(w http.ResponseWriter, r *http.Request) {
+func GetUserSessionHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
 		fmt.Println("No session cookie found:", err)
@@ -24,6 +24,5 @@ func CheckSessionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("User found:", user.Username)
-	json.NewEncoder(w).Encode(LoginResponse{Success: true, Message: "Session active", Username: user.Username})
+	json.NewEncoder(w).Encode(LoginResponse{Success: true, Message: "Session active", ID: user.ID, Username: user.Username, Email: user.Email, Age: user.Age, Gender: user.Gender, FirstName: user.FirstName, LastName: user.LastName})
 }

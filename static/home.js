@@ -1,6 +1,5 @@
 import * as post from './post.js';
 import { displaySideBar } from './sideBar.js';
-import * as session from './session.js';
 
 export function homePage() {
     document.body.innerHTML = "";
@@ -18,5 +17,3 @@ export function homePage() {
 
     post.getPosts();
 }
-
-document.addEventListener("DOMContentLoaded", session.checkSession);

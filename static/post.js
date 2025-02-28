@@ -1,4 +1,5 @@
 import * as comments from './comments.js'
+import * as user from './user.js'
 export function showPosts(posts) {
     const postContainer = document.getElementById("postContainer");
     postContainer.innerHTML = ''; // Clear existing posts
@@ -140,7 +141,7 @@ export function submitPost() {
     const title = document.getElementById("postTitle").value;
     const content = document.getElementById("postContent").value;
     const imageFile = document.getElementById("postImage").files[0];
-    const sender_id = 1; // Change when sessions are available
+    const sender_id = user.getCurrentUser().ID; // Change when sessions are available
 
     if (!title || !content || !sender_id) {
         alert("Please fill in all required fields.");

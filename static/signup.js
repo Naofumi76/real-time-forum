@@ -1,4 +1,5 @@
 import { homePage } from "./home.js"
+import * as session from "./session.js"
 
 export function signupPage() {
 	var formSignup, h1Signup, inputUsername, inputPassword, inputEmail, inputAge, inputGender, inputFirstName, inputLastName, inputPassword, submitButton
@@ -93,6 +94,7 @@ export function submitSignupForm(event) {
         .then((data) => {
             if (data.success) {
                 alert(data.message);
+				session.getUserFromSession()
                 homePage(); // Load homepage only on success
             } else {
                 alert("Error: " + data.message);

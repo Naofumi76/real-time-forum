@@ -1,13 +1,27 @@
-import * as home from "./home.js"
-	export function checkSession() {
-		fetch("http://localhost:8080/check-session", { credentials: "include" })
-			.then((res) => res.json())
-			.then((data) => {
-				if (data.success) {
-					home.homePage(); // Auto-login if session is valid
+import * as user from './user.js'
+
+export async function getUserFromSession() {
+	return fetch("http://localhost:8080/get-user-session", { credentials: "include" })
+		.then((res) => res.json())
+		.then((data) => {
+			if (data.success) {
+				var currentUser = {
+					ID: data.id,
+                    username: data.username,
+					email: data.email,
+					age : data.age,
+					gender: data.gender,
+					firstname: data.firstname,
+					lastname: data.lastname,
 				}
-			})
-			.catch((error) => {
-				console.error("Error checking session:", error);
-			});
-	}
+				user.setCurrentUser(currentUser)
+				return user;
+			} else {
+				return null;
+			}
+		})
+		.catch((error) => {
+			console.error("Error getting user:", error);
+			return null;
+		});
+}

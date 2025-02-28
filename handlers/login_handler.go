@@ -16,9 +16,15 @@ type UserLoginRequest struct {
 
 // LoginResponse represents the JSON response structure for login
 type LoginResponse struct {
-	Success  bool   `json:"success"`
-	Message  string `json:"message"`
-	Username string `json:"username"`
+	Success   bool   `json:"success"`
+	Message   string `json:"message"`
+	ID        int    `json:"id"`
+	Username  string `json:"username"`
+	Email     string `json:"email"`
+	Age       int    `json:"age"`
+	Gender    string `json:"gender"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
 }
 
 // LoginHandler handles user authentication

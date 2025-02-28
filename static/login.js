@@ -1,4 +1,5 @@
 import { homePage } from "./home.js"
+import * as session from "./session.js"
 
 export function loginPage() {
 	var formLogin, h1Login, inputUsername, inputEmail, inputPassword, submitButton
@@ -56,7 +57,7 @@ export function submitLoginForm(event) {
 		})
 		.then((data) => {
 			if (data.success) {
-				// console.log("Login successful");
+				session.getUserFromSession()
 				homePage(); // Load homepage only on success
 			} else {
 				// console.error("Login failed:", data.message);
