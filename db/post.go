@@ -246,14 +246,13 @@ func SelectPostByID(postID int) (Post, error) {
 	query := `
 			SELECT p.id, p.sender, p.parent_id, p.title, p.content, p.picture, p.date,
 				   IFNULL(u.username, 'Deleted User') AS username,
-				   IFNULL(u.email, '') AS email,
-				   IFNULL(u.picture, 'default-profile.png') AS picture
+				   IFNULL(u.email, '') AS email
 			FROM posts p
 			LEFT JOIN users u ON p.sender = u.id
 			WHERE p.id = ?;`
 
 	var post Post
-	err := db.QueryRow(query, postID).Scan(&post.ID, &post.Sender.ID, &post.ParentID, &post.Title, &post.Content, &post.Picture, &post.Date, &post.Sender.Username, &post.Sender.Email, &post.Sender.Picture)
+	err := db.QueryRow(query, postID).Scan(&post.ID, &post.Sender.ID, &post.ParentID, &post.Title, &post.Content, &post.Picture, &post.Date, &post.Sender.Username, &post.Sender.Email)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return Post{}, errors.New("post not found")

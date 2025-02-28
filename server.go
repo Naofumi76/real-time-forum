@@ -20,6 +20,7 @@ func main() {
 	http.HandleFunc("/getMessages", handlers.GetMessagesHandler)
 	http.HandleFunc("/sendMessage", handlers.SendMessageHandler)
 	http.HandleFunc("/get-user-session", handlers.GetUserSessionHandler)
+	http.HandleFunc("/api/postID", handlers.GetPostByIdHandler)
 
 	port := ":8080"
 	fmt.Println("Server started at http://localhost" + port)

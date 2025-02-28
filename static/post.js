@@ -6,6 +6,8 @@ export function showPosts(posts) {
 
     posts.forEach(post => {
 		console.log(post)
+        if (post.ParentID === 0){
+
         const postDiv = document.createElement("div");
         postDiv.className = "post";
 
@@ -23,6 +25,7 @@ export function showPosts(posts) {
 
         const date = document.createElement("p");
         date.textContent = `Date: ${post.Date}`;
+        date.style.cssText = "black";
 
         postDiv.appendChild(h2);
         postDiv.appendChild(author);
@@ -46,6 +49,7 @@ export function showPosts(posts) {
         postDiv.appendChild(commentsButton);
 
         postContainer.appendChild(postDiv);
+    }
     });
 }
 
@@ -77,27 +81,31 @@ export function createPost() {
     const modal = document.createElement("div");
     modal.className = "modal";
     modal.style.cssText = `
-        position: fixed;
-        z-index: 1;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0,0,0,0.4);
-        display: flex;
-        justify-content: center;
-        align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4); /* Dark background overlay */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999; /* Makes sure the modal is above other content */
     `;
+
 
     const modalContent = document.createElement("div");
     modalContent.className = "modal-content";
     modalContent.style.cssText = `
-        background-color: #fefefe;
-        padding: 20px;
-        border: 1px solid #888;
-        width: 80%;
-        max-width: 500px;
+    background-color: #fefefe;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    display: block; /* Ensure modal content itself isn't using flex or row layout */
     `;
 
     const title = document.createElement("textarea");
@@ -179,7 +187,7 @@ export function submitPost() {
     }
 }
 
-function sendPostData(formData) {
+export function sendPostData(formData, commentState = false) {
     fetch("http://localhost:8080/create-post", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -193,11 +201,21 @@ function sendPostData(formData) {
             throw new Error("Invalid JSON response from server");
         }
     })
-    .then((data) => {
-        if (data.success) {
+    .then(async (data) => {
+        if (data.success && !commentState) {
             alert(data.message);
             document.getElementById("postContainer").innerHTML = "";
             getPosts();
+        } else if (data.success && commentState){
+            alert('Comment was successfully sent');
+            document.getElementById("postContainer").innerHTML = "";
+
+            let post = await getPostById(formData.parent_id);
+
+
+            await comments.getComments(post);
+
+
         } else {
             alert("Error: " + data.message);
         }
@@ -205,5 +223,29 @@ function sendPostData(formData) {
     .catch((error) => console.error("Error:", error));
 
     // Close the modal after submission
-    document.body.removeChild(document.querySelector(".modal"));
+    const modal = document.querySelector(".modal");
+if (modal) {
+    document.body.removeChild(modal);
+}
+}
+
+
+export async function getPostById(id) {
+    return fetch(`http://localhost:8080/api/postID?ParentID=${id}`, {  
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log("Received post data:", data);
+        return data;
+    })
+    .catch(error => console.error("Error:", error));
 }

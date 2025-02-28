@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"real-time/db"
 	"time"
+	
 )
 
 type CreatePostRequest struct {
@@ -34,6 +35,7 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, `{"success": false, "message": "Invalid JSON input"}`, http.StatusBadRequest)
 		return
 	}
+
 
 	db.CreatePost(req.SenderID, req.Title, req.Content, req.Picture, time.Now().Format("2006-01-02 15:04:05"), req.ParentID)
 
