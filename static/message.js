@@ -1,160 +1,158 @@
-export function contactPage(conversations, onlineUsers) {
-	// Will have to create code to get the conversations of the user and online users
-	
-	var contactContainer, onlineUserContainer
-    document.body.innerHTML = ""
+let activeSockets = {}; // Store active WebSocket connections per user
 
-	contactContainer = document.createElement("div")
-	contactContainer.style.paddingLeft = "5%"
-	contactContainer.className = "contactContainer"
+export async function openPrivateMessage(firstUser, secondUser) {
+    console.log("Opening chat between:", firstUser, secondUser);
 
-	// Create the contact list
-	conversations.forEach(user => {
-		var conversation = document.createElement("div")
-		conversation.textContent = user
-		conversation.addEventListener("click", openPrivateMessage("TEMP UNTIL SESSION", user))
-		contactContainer.appendChild(conversation)
-	})
+    // Ensure WebSocket is connected
+    const socket = connectWebSocket(firstUser);
 
+    let messageContainer = document.createElement("div");
+    messageContainer.className = "message-container";
 
-    onlineUserContainer = document.createElement("div")
-	onlineUserContainer.style.paddingRight = "5%"
-	onlineUserContainer.className = "onlineUserContainer"
-	onlineUserContainer.textContent = "Online Users:"
+    let textContainer = document.createElement("div");
+    textContainer.className = "text-container";
+    textContainer.id = `text-container-${secondUser.ID}`; // Unique ID for real-time updates
 
-	// Create the online user list
-	onlineUsers.forEach(user => {
-		var onlineUser = document.createElement("div")
-        onlineUser.textContent = user
-		onlineUser.addEventListener("click", openPrivateMessage("TEMP UNTIL SESSION", user))
-        onlineUserContainer.appendChild(onlineUser)
-	})
+    // Chat Header
+    let header = document.createElement("div");
+    header.className = "chat-header";
+    header.textContent = secondUser.Username;
+    messageContainer.appendChild(header);
 
-    document.body.appendChild(contactContainer)
-	document.body.appendChild(onlineUserContainer)
+    // Load previous messages from DB
+    let messages = await getMessages(firstUser.ID, secondUser.ID) || [];
+    messages.forEach(message => displayMessage(message, firstUser, secondUser));
 
+    messageContainer.appendChild(textContainer);
+
+    // Input Field
+    let sendMessageInput = document.createElement("input");
+    sendMessageInput.type = "text";
+    sendMessageInput.placeholder = "Type a message...";
+    sendMessageInput.className = "message-input";
+
+    // Send Button
+    let sendMessageButton = document.createElement("button");
+    sendMessageButton.textContent = "Send";
+    sendMessageButton.className = "send-button";
+
+    // Handle sending message on "Enter" key
+    sendMessageInput.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+            sendMessage(socket, firstUser, secondUser, sendMessageInput.value);
+            sendMessageInput.value = "";
+        }
+    });
+
+    // Handle sending message on button click
+    sendMessageButton.addEventListener("click", async function () {
+        await sendMessage(socket, firstUser, secondUser, sendMessageInput.value);
+        sendMessageInput.value = "";
+    });
+
+    messageContainer.appendChild(sendMessageInput);
+    messageContainer.appendChild(sendMessageButton);
+
+    document.body.appendChild(messageContainer);
 }
 
-export function openPrivateMessage(firstUser, secondUser) {
-	document.body.innerHTML = ""
-	var messageContainer = document.createElement("div")
+// WebSocket Connection (Reused if Already Connected)
+export function connectWebSocket(user) {
+    if (activeSockets[user.ID]) {
+        return activeSockets[user.ID]; // Reuse existing connection
+    }
 
-	// Expecting messages to contain object message with values .Content and .Sender
-	var messages = getMessages(firstUser, secondUser)
+    const socket = new WebSocket(`ws://localhost:8080/ws?user=${user.ID}`);
 
-	// For each message, create the visual
-	messages.forEach(message => {
-		var finalMessage = document.createElement("div")
-		var messageContent = document.createElement("p")
-		messageContent.textContent = message.Content
+    socket.onopen = function () {
+        console.log(`Connected to WebSocket as ${user.Username}`);
+    };
 
-		var messageSender = document.createElement("p")
-		messageSender.textContent = message.Sender
+    socket.onmessage = function (event) {
+        const message = JSON.parse(event.data);
+        console.log("📩 New private message received:", message);
+        displayMessage(message, user, message.receiver ); // Ensure correct receiver is set
+    };
 
-		finalMessage.appendChild(messageContent)
-		finalMessage.appendChild(messageSender)
+    socket.onclose = function () {
+        console.log("WebSocket Disconnected!");
+        delete activeSockets[user.ID]; // Remove from active connections
+    };
 
-		messageContainer.appendChild(finalMessage)
-	})
+    activeSockets[user.ID] = socket;
+    return socket;
+}
 
-	document.body.appendChild(messageContainer)
+//  Send Message via WebSocket
+export async function sendMessage(socket, sender, receiver, messageContent) {
+    if (!messageContent.trim()) return alert("Message cannot be empty!");
 
-	// Area to write the message to send
-	var sendMessageForm = document.createElement("input")
-	sendMessageForm.type = "text"
-	sendMessageForm.id = "sendMessageForm"
+	console.log("sendMessage", sender, receiver, messageContent)
 
-	// Send message when pressing "Enter"
-	sendMessageForm.addEventListener("keydown", function(event) {
-		if (event.key === "Enter") {
-            sendMessage(firstUser, secondUser, sendMessageForm.value)
-            sendMessageForm.value = ""
-        }
-	})
+    const message = {
+        Sender: { ID: sender.ID, Username: sender.username },          // Sender as an object with ID
+        Receiver: { ID: receiver.ID, Username: receiver.Username},
+        Content: messageContent,		
+        date: new Date().toISOString(),
+    };
 
-	// Send message when clicking the button
-	var sendMessageButton = document.createElement("button")
-	sendMessageButton.textContent = "->"
-	sendMessageButton.addEventListener("click", function() {
-        sendMessage(firstUser, secondUser, sendMessageForm.value)
-        sendMessageForm.value = ""
-    })
+    socket.send(JSON.stringify(message)); // Send message to server
+	displayMessage(message, sender, receiver);
+}
 
-	document.body.appendChild(sendMessageForm)
-	document.body.appendChild(sendMessageButton)
+//  Display Message in Chat Window
+function displayMessage(message, firstUser, secondUser) {
+
+    let textContainer = document.querySelector(".text-container");
+
+    if (!textContainer) {
+        console.warn("⚠️ Text container not found! Retrying in 200ms...");
+        setTimeout(() => displayMessage(message, firstUser, secondUser), 200);
+        return;
+    }
+
+    console.log("📩 New message received:", message, secondUser); // Debugging
+
+    let finalMessage = document.createElement("div");
+    let messageContent = document.createElement("p");
+    let messageSender = document.createElement("p");
+
+    // Ensure the message content is not empty
+    messageContent.textContent = message.Content || "(No content)";
+    messageSender.textContent = message.Sender.ID === firstUser.ID ? "You" : (secondUser ? secondUser.Username : message.Sender.Username);
+    
+    // Assign classes for styling
+    finalMessage.classList.add(
+        message.sender === firstUser.ID ? "message-sender-you" : "message-sender-other"
+    );
+    
+    // Append elements properly
+    finalMessage.appendChild(messageSender);
+    finalMessage.appendChild(messageContent);
+    textContainer.appendChild(finalMessage);
+
+    // Auto-scroll to latest message
+    textContainer.scrollTop = textContainer.scrollHeight;
 }
 
 
-export function sendMessage(firstUser, secondUser, messageContent) {
-	const message = messageContent
-	// If the user tries to send an empty message
-	if (!message) {
-		alert("Please enter a message!")
-		return
-	}
+// Fetch Past Messages from Server
+export async function getMessages(firstUserID, secondUserID) {
+    console.log("Fetching messages for:", firstUserID, secondUserID);
 
-	// Create the message data and send it to the server
-	const formData = {
-		message: message,
-        sender: firstUser,
-        receiver: secondUser,
-		date: new Date()
-	}
-	fetch("http://localhost:8080/sendMessage", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-    })
-	.then(async (response) => {
-        const text = await response.text()
-        try {
-            return JSON.parse(text)
-        } catch {
-            throw new Error("Invalid JSON response from server")
-        }
-    })
-	.then((data) => {
-		if (data.success) {
-			// If message successfully sent, get the latest messages
-            alert(data.response)
-			document.getElementById("messageContainer").innerHTML = ""
-			openPrivateMessage(firstUser, secondUser)
-        } else {
-            alert("Error: " + data.message)
-        }
-	})
-	.catch((error) => console.error("Error:", error));
-}
+    try {
+        const response = await fetch("http://localhost:8080/getMessages", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sender: firstUserID, receiver: secondUserID }),
+        });
 
-export async function getMessages(firstUser, secondUser) {
-	// Fetch messages from the server
-    return fetch("http://localhost:8080/getMessages", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            sender: firstUser,
-            receiver: secondUser
-        }),
-    })
-    .then(async (response) => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`)
-        }
-        const text = await response.text()
-        try {
-            return JSON.parse(text)
-        } catch {
-            throw new Error("Invalid JSON response from server")
-        }
-    })
-    .then((data) => {
-        if (data.success) {
-            return data.messages
-        } else {
-            throw new Error("Error: " + data.response)
-        }
-    })
-    .catch((error) => console.error("Error:", error))
+        if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+
+        const data = await response.json();
+        return data.success ? data.messages : [];
+    } catch (error) {
+        console.error("Error fetching messages:", error);
+        return [];
+    }
 }

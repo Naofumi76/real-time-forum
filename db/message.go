@@ -20,7 +20,7 @@ func FetchMessages(sender, receiver int) []Message {
 	db := GetDB()
 	defer db.Close()
 
-	query := "SELECT * FROM messages WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?) ORDER BY id DESC"
+	query := "SELECT * FROM messages WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?) ORDER BY id ASC"
 	rows, err := db.Query(query, sender, receiver, receiver, sender)
 
 	if err != nil {

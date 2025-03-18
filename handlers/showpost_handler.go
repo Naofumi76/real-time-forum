@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
+	//"fmt"
 	"log"
 	"net/http"
 	"real-time/db"
@@ -23,7 +23,7 @@ func ShowPostHandler(w http.ResponseWriter, r *http.Request) {
 
 	posts := db.FetchPosts()
 
-	fmt.Println(posts)
+	//fmt.Println(posts)
 
 	w.Header().Set("Content-Type", "application/json")
 	err := json.NewEncoder(w).Encode(posts)

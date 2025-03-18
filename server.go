@@ -21,6 +21,8 @@ func main() {
 	http.HandleFunc("/sendMessage", handlers.SendMessageHandler)
 	http.HandleFunc("/get-user-session", handlers.GetUserSessionHandler)
 	http.HandleFunc("/api/postID", handlers.GetPostByIdHandler)
+	http.HandleFunc("/api/contacts", handlers.ContactsHandler)
+	http.HandleFunc("/ws", handlers.HandleConnections)
 
 	port := ":8080"
 	fmt.Println("Server started at http://localhost" + port)

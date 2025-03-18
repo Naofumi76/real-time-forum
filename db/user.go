@@ -180,3 +180,35 @@ func SelectUserByEmail(email string) (*User, error) {
 
 	return &user, nil
 }
+
+
+func FetchAllUsers() ([]User, error) {
+	db := GetDB()
+	defer db.Close()
+
+	query := `
+	SELECT u.id, u.username
+	FROM users u;`
+
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []User
+	for rows.Next() {
+		var user User
+		err := rows.Scan(&user.ID, &user.Username)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}

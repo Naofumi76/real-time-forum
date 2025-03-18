@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
+	//"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -25,7 +25,7 @@ func ShowCommentHandler(w http.ResponseWriter, r *http.Request) {
 
 	comments := db.FetchComments(postIDInt)
 
-	fmt.Println(comments)
+	//fmt.Println(comments)
 
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(comments)

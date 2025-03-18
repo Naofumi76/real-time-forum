@@ -1,4 +1,3 @@
-import * as home from "./home.js";
 import { sendPostData } from "./post.js";
 
 export async function showComments(comments, originalPost) {

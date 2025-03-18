@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"real-time/db"
+	"fmt"
 )
 
 type GetMessageRequest struct {
@@ -27,6 +28,7 @@ func GetMessagesHandler(w http.ResponseWriter, r *http.Request) {
 	var req GetMessageRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
+		fmt.Println(&req)
 		http.Error(w, `{"success": false, "response": "Invalid JSON input"}`, http.StatusBadRequest)
 		return
 	}

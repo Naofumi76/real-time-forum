@@ -1,4 +1,5 @@
 import * as post from './post.js';
+import { showContacts } from './contacts.js';
 import { homePage } from './home.js';
 
 export function displaySideBar() {
@@ -9,7 +10,7 @@ export function displaySideBar() {
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" /></svg>
                     <span>Menu</span>
             </li>
-            <li>
+            <li id="contacts">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" /></svg>
                     <span>Contatcs</span>
             </li>
@@ -25,6 +26,9 @@ export function displaySideBar() {
     `;
     bar.id = 'sidebar';
     document.body.appendChild(bar);
+
+    const contacts = document.getElementById('contacts');
+    contacts.addEventListener('click', showContacts);
 
     const createpost = document.getElementById('createPost');
     createpost.addEventListener('click', post.createPost);
