@@ -4,7 +4,7 @@ import { homePage } from './home.js';
 import { connectWebSocket } from './message.js';
 import { getCurrentUser } from './user.js';
 
-export function displaySideBar() {
+export async function displaySideBar() {
 
     const currentUser = getCurrentUser(); // This will return the current user object
 

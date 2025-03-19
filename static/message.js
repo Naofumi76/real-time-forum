@@ -1,3 +1,5 @@
+import { contactsList, renderContacts } from "./contacts.js";
+
 export let activeSockets = {}; // Store active WebSocket connections per user
 let activeChatUser = null;
 export let unreadMessages = {};
@@ -110,6 +112,8 @@ export async function sendMessage(socket, sender, receiver, messageContent) {
         date: new Date().toISOString(),
     };
 
+    showNotificationMAJ(message);
+
     socket.send(JSON.stringify(message)); // Send message to server
 	displayMessage(message, sender, receiver);
 }
@@ -170,20 +174,48 @@ export async function getMessages(firstUserID, secondUserID) {
 }
 
 
+
 function showNotification(message) {
-    const contacts = document.getElementsByClassName("contact");
+    // Find the contact in the list
 
     const contactID = message.Sender.id;
-    console.log(contactID, message.Sender)
+
+    const contactIndex = contactsList.findIndex(contact => contact.ID === contactID);
     
-    for (let contact of contacts) {
-        if (contact.dataset.id === contactID.toString()) {
-            const notificationDot = contact.querySelector(".notification-dot");
+    
+    console.log(message, contactsList, "contactID,", contactID);
+
+    if (contactIndex !== -1) {
+        // Move the contact to the top
+        const [contact] = contactsList.splice(contactIndex, 1);
+        contactsList.unshift(contact);
+        renderContacts(); // Re-render the contact list
+
+        // Show notification dot
+        setTimeout(() => {
+            const notificationDot = document.querySelector(`.contact[data-id='${contactID}'] .notification-dot`);
             if (notificationDot) {
-                notificationDot.style.display = "inline-block"; // Show the dot
+                notificationDot.style.display = "inline-block";
             }
-            break;
-        }
+        }, 0);
     }
 }
 
+function showNotificationMAJ(message) {
+    // Find the contact in the list
+
+    const contactID = message.Receiver.ID;
+
+    const contactIndex = contactsList.findIndex(contact => contact.ID === contactID);
+    
+    
+    console.log(message, contactsList, "contactID,", contactID);
+
+    if (contactIndex !== -1) {
+        // Move the contact to the top
+        const [contact] = contactsList.splice(contactIndex, 1);
+        contactsList.unshift(contact);
+        renderContacts(); // Re-render the contact list
+
+    }
+}
