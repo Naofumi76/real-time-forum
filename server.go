@@ -14,6 +14,7 @@ func main() {
 	// Register handlers
 	http.HandleFunc("/signup", handlers.SignupHandler)
 	http.HandleFunc("/login", handlers.LoginHandler)
+	http.HandleFunc("/logout", handlers.LogoutHandler)
 	http.HandleFunc("/api/posts", handlers.ShowPostHandler)
 	http.HandleFunc("/api/comments", handlers.ShowCommentHandler)
 	http.HandleFunc("/create-post", handlers.CreatePostHandler)

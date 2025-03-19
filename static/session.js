@@ -1,4 +1,5 @@
 import * as user from './user.js'
+import * as start from './registerPage.js'
 
 export async function getUserFromSession() {
 	return fetch("http://localhost:8080/get-user-session", { credentials: "include" })
@@ -7,9 +8,9 @@ export async function getUserFromSession() {
 			if (data.success) {
 				var currentUser = {
 					ID: data.id,
-                    username: data.username,
+					username: data.username,
 					email: data.email,
-					age : data.age,
+					age: data.age,
 					gender: data.gender,
 					firstname: data.firstname,
 					lastname: data.lastname,
@@ -24,4 +25,16 @@ export async function getUserFromSession() {
 			console.error("Error getting user:", error);
 			return null;
 		});
+}
+
+export function disconnectUser() {
+	fetch("http://localhost:8080/logout", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		credentials: "include",
+		body: JSON.stringify({}),
+	})
+	
 }
