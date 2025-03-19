@@ -1,8 +1,16 @@
 import * as post from './post.js';
 import { showContacts } from './contacts.js';
 import { homePage } from './home.js';
+import { connectWebSocket } from './message.js';
+import { getCurrentUser } from './user.js';
 
 export function displaySideBar() {
+
+    const currentUser = getCurrentUser(); // This will return the current user object
+
+    // Connect to WebSocket for the current user
+    const socket = connectWebSocket(currentUser);
+
     const bar = document.createElement('nav');
     bar.innerHTML = `
         <ul>
@@ -16,7 +24,7 @@ export function displaySideBar() {
             </li>
             <li>
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
-                    <span>Private Messages</span>
+                    <span>Log out</span>
             </li>
             <li id="createPost">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 2a2 2 0 00-2 2v14l3.5-2 3.5 2 3.5-2 3.5 2V4a2 2 0 00-2-2H5zm2.5 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm6.207.293a1 1 0 00-1.414 0l-6 6a1 1 0 101.414 1.414l6-6a1 1 0 000-1.414zM12.5 10a1.5 1.5 0 100 3 1.5 1.5 0 000-3z" clip-rule="evenodd" /></svg>
@@ -38,5 +46,11 @@ export function displaySideBar() {
         document.getElementById('postContainer').innerHTML = "";
         homePage();
     });
+
+    const notificationDot = document.createElement("span"); // Notification dot
+    notificationDot.className = "notification-dot";
+    notificationDot.style.display = "none"; // Initially hidden
+
+    contacts.appendChild(notificationDot);
 
 }

@@ -1,7 +1,11 @@
-let activeSockets = {}; // Store active WebSocket connections per user
+export let activeSockets = {}; // Store active WebSocket connections per user
+let activeChatUser = null;
+export let unreadMessages = {};
 
 export async function openPrivateMessage(firstUser, secondUser) {
     console.log("Opening chat between:", firstUser, secondUser);
+
+    activeChatUser = secondUser;
 
     // Ensure WebSocket is connected
     const socket = connectWebSocket(firstUser);
@@ -70,8 +74,18 @@ export function connectWebSocket(user) {
 
     socket.onmessage = function (event) {
         const message = JSON.parse(event.data);
-        console.log("📩 New private message received:", message);
-        displayMessage(message, user, message.receiver ); // Ensure correct receiver is set
+        console.log("📩 New private message received:", message, activeChatUser, message.Sender.Username);
+    
+        if (activeChatUser && activeChatUser.Username === message.Sender.Username) {
+            // If chat is open, display the message in the chat
+            displayMessage(message, user, message.Sender);
+        } else {
+            // If chat is NOT open, show a notification
+            showNotification(message);
+            unreadMessages[message.Sender.ID] = (unreadMessages[message.Sender.ID] || 0) + 1;
+
+        }
+
     };
 
     socket.onclose = function () {
@@ -103,15 +117,13 @@ export async function sendMessage(socket, sender, receiver, messageContent) {
 //  Display Message in Chat Window
 function displayMessage(message, firstUser, secondUser) {
 
-    let textContainer = document.querySelector(".text-container");
+    let textContainer = document.querySelector(`.text-container`);
 
     if (!textContainer) {
-        console.warn("⚠️ Text container not found! Retrying in 200ms...");
-        setTimeout(() => displayMessage(message, firstUser, secondUser), 200);
+        console.warn("⚠️ Text container not found! Retrying in 500ms...");
+        setTimeout(() => displayMessage(message, firstUser, secondUser), 500);
         return;
     }
-
-    console.log("📩 New message received:", message, secondUser); // Debugging
 
     let finalMessage = document.createElement("div");
     let messageContent = document.createElement("p");
@@ -156,3 +168,22 @@ export async function getMessages(firstUserID, secondUserID) {
         return [];
     }
 }
+
+
+function showNotification(message) {
+    const contacts = document.getElementsByClassName("contact");
+
+    const contactID = message.Sender.id;
+    console.log(contactID, message.Sender)
+    
+    for (let contact of contacts) {
+        if (contact.dataset.id === contactID.toString()) {
+            const notificationDot = contact.querySelector(".notification-dot");
+            if (notificationDot) {
+                notificationDot.style.display = "inline-block"; // Show the dot
+            }
+            break;
+        }
+    }
+}
+

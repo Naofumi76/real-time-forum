@@ -1,5 +1,8 @@
-import {openPrivateMessage} from "./message.js";
+import {openPrivateMessage, unreadMessages} from "./message.js";
 import { getCurrentUser } from "./user.js";
+
+
+
 
  async function getContacts(){
     return await fetch("/api/contacts")
@@ -19,6 +22,7 @@ import { getCurrentUser } from "./user.js";
         });
 }
 
+
 export async function showContacts() {
     try {
         const contacts = await getContacts();
@@ -27,25 +31,41 @@ export async function showContacts() {
 
         contacts.forEach(contact => {
             const contactDiv = document.createElement("div");
+            contactDiv.className = "contact";
+
+            contactDiv.dataset.id = contact.ID;
 
             contactDiv.addEventListener("click", () => {
+                if(document.querySelector(`.text-container`)){
+                    document.querySelector(`.text-container`).remove();
+                }
+                // Clear unread messages when opening chat
+                delete unreadMessages[contact.ID];
+
+                        // Remove notification dot when chat is opened
+                const notificationDot = contactDiv.querySelector(".notification-dot");
+                if (notificationDot) {
+                    notificationDot.style.display = "none";
+                }
+
                 openPrivateMessage(getCurrentUser(), contact);
+
             });
-
-
-            contactDiv.className = "contact";
 
             const avatarDiv = document.createElement("div");
             avatarDiv.className = "avatar";
-            console.log(contact);
-            avatarDiv.textContent = contact.Username[0].toUpperCase(); // First letter in uppercase
+            avatarDiv.textContent = contact.Username[0].toUpperCase();
 
             const nameSpan = document.createElement("span");
             nameSpan.textContent = contact.Username;
 
+            const notificationDot = document.createElement("span"); // Notification dot
+            notificationDot.className = "notification-dot";
+            notificationDot.style.display = "none"; // Initially hidden
+
             contactDiv.appendChild(avatarDiv);
             contactDiv.appendChild(nameSpan);
-
+            contactDiv.appendChild(notificationDot);
             container.appendChild(contactDiv);
         });
 
@@ -54,3 +74,4 @@ export async function showContacts() {
         console.error("Failed to load contacts:", error);
     }
 }
+
