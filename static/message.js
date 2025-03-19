@@ -182,9 +182,6 @@ function showNotification(message) {
 
     const contactIndex = contactsList.findIndex(contact => contact.ID === contactID);
     
-    
-    console.log(message, contactsList, "contactID,", contactID);
-
     if (contactIndex !== -1) {
         // Move the contact to the top
         const [contact] = contactsList.splice(contactIndex, 1);
@@ -208,9 +205,6 @@ function showNotificationMAJ(message) {
 
     const contactIndex = contactsList.findIndex(contact => contact.ID === contactID);
     
-    
-    console.log(message, contactsList, "contactID,", contactID);
-
     if (contactIndex !== -1) {
         // Move the contact to the top
         const [contact] = contactsList.splice(contactIndex, 1);
