@@ -6,7 +6,7 @@ import { getCurrentUser } from './user.js';
 
 export async function displaySideBar() {
 
-    const currentUser = getCurrentUser(); // This will return the current user object
+    const currentUser = await getCurrentUser(); // This will return the current user object
 
     // Connect to WebSocket for the current user
     const socket = connectWebSocket(currentUser);
@@ -38,6 +38,11 @@ export async function displaySideBar() {
     const contacts = document.getElementById('contacts');
     contacts.addEventListener('click', showContacts);
 
+    const notificationDotc = document.createElement("span");
+    notificationDotc.className = "notification-dot";
+    notificationDotc.style.display = "none"; // Initially hidden
+    contacts.appendChild(notificationDotc);
+
     const createpost = document.getElementById('createPost');
     createpost.addEventListener('click', post.createPost);
 
@@ -53,4 +58,31 @@ export async function displaySideBar() {
 
     contacts.appendChild(notificationDot);
 
+}
+
+function updateSidebarNotification() {
+    const sidebarDot = document.querySelector("#contacts .notification-dot");
+
+    // Show dot if any contact has unread messages
+    const hasUnreadMessages = Object.values(unreadMessages).some(status => status);
+
+    if (hasUnreadMessages) {
+        sidebarDot.style.display = "inline-block";
+    } else {
+        sidebarDot.style.display = "none";
+    }
+}
+
+function hideContactNotification(contactID) {
+    // Remove unread status for this contact
+    delete unreadMessages[contactID];
+
+    // Hide dot from this specific contact
+    const contactDot = document.querySelector(`.contact[data-id='${contactID}'] .notification-dot`);
+    if (contactDot) {
+        contactDot.style.display = "none";
+    }
+
+    // Update sidebar notification based on remaining unread messages
+    updateSidebarNotification();
 }

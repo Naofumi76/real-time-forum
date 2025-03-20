@@ -5,7 +5,6 @@ export function showPosts(posts) {
     postContainer.innerHTML = ''; // Clear existing posts
 
     posts.forEach(post => {
-		console.log(post)
         if (post.ParentID === 0){
 
         const postDiv = document.createElement("div");
@@ -63,7 +62,7 @@ export async function getPosts() {
             return response.json();
         })
         .then(data => {
-            console.log("Received data:", data);
+            //console.log("Received data:", data);
 			posts = data;
             showPosts(data);
         })
@@ -244,7 +243,7 @@ export async function getPostById(id) {
         return response.json();
     })
     .then(data => {
-        console.log("Received post data:", data);
+        //console.log("Received post data:", data);
         return data;
     })
     .catch(error => console.error("Error:", error));

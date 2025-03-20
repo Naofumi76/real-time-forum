@@ -1,8 +1,7 @@
-import {openPrivateMessage, unreadMessages} from "./message.js";
+import {openPrivateMessage, unreadMessages, hideContactNotification, updateSidebarNotification} from "./message.js";
 import { getCurrentUser } from "./user.js";
 
-
-
+export let contactsList = await getContacts(); // Store contacts globally
 
  async function getContacts(){
     return await fetch("/api/contacts")
@@ -13,7 +12,7 @@ import { getCurrentUser } from "./user.js";
             return response.json();
        })
        .then(data => {
-            console.log("Received data:", data);
+            //console.log("Received data:", data);
             return data;
         })
         .catch(error => {
@@ -21,9 +20,6 @@ import { getCurrentUser } from "./user.js";
             throw error;
         });
 }
-
-
-export let contactsList = []; // Store contacts globally
 
 export async function showContacts() {
     try {
@@ -48,20 +44,19 @@ export function renderContacts() {
     contactsList.forEach(contact => {
         const contactDiv = document.createElement("div");
         contactDiv.className = "contact";
+        //console.log(contact.ID, contact);
         contactDiv.dataset.id = contact.ID;
 
         contactDiv.addEventListener("click", () => {
             if (document.querySelector(`.text-container`)) {
                 document.querySelector(`.text-container`).remove();
             }
-            delete unreadMessages[contact.ID]; // Clear unread messages
-            openPrivateMessage(getCurrentUser(), contact);
 
-            // Remove notification dot
-            const notificationDot = contactDiv.querySelector(".notification-dot");
-            if (notificationDot) {
-                notificationDot.style.display = "none";
-            }
+            // Mark message as read
+            hideContactNotification(contact.ID);
+            updateSidebarNotification()
+            let user = getCurrentUser();
+            openPrivateMessage(user, contact);
         });
 
         const avatarDiv = document.createElement("div");
@@ -74,9 +69,10 @@ export function renderContacts() {
         const nameSpan = document.createElement("span");
         nameSpan.textContent = contact.Username;
 
+        // Notification dot for this contact
         const notificationDot = document.createElement("span");
         notificationDot.className = "notification-dot";
-        notificationDot.style.display = "none"; 
+        notificationDot.style.display = unreadMessages[contact.ID] ? "inline-block" : "none";
 
         nameContainer.appendChild(nameSpan);
         nameContainer.appendChild(notificationDot);
@@ -85,4 +81,7 @@ export function renderContacts() {
         contactDiv.appendChild(nameContainer);
         container.appendChild(contactDiv);
     });
+
+    // Update sidebar notification dot
+    updateSidebarNotification();
 }

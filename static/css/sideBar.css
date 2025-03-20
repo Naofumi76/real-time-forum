@@ -56,6 +56,11 @@ nav ul li span {
     transition: 0.2s all ease;
 }
 
+nav ul li .notification-dot{
+    opacity: 1;
+}
+
+
 nav ul li.active,
 nav ul li:hover {
     color: #1c205f;
