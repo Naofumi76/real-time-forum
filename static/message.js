@@ -9,8 +9,20 @@ export async function openPrivateMessage(firstUser, secondUser) {
 
     activeChatUser = secondUser;
 
+    console.log("unreadMessages", unreadMessages, unreadMessages[secondUser.ID], secondUser.ID);
+
+    if (unreadMessages.hasOwnProperty(secondUser.ID)) {
+        console.log(`Removing unread messages for ${secondUser.ID}`);
+        delete unreadMessages[secondUser.ID];
+        hideContactNotification(secondUser.ID);
+        updateSidebarNotification() // Hide notification dot
+    } else {
+        console.warn("Unread messages entry not found for:", secondUser.ID);
+    }
+
     // Ensure WebSocket is connected
     const socket = connectWebSocket(firstUser);
+
 
     let messageContainer = document.createElement("div");
     messageContainer.className = "message-container";
@@ -26,6 +38,9 @@ export async function openPrivateMessage(firstUser, secondUser) {
     messageContainer.appendChild(header);
 
     // Load previous messages from DB
+
+    //console.log("user are : ", firstUser, secondUser);
+
     let messages = await getMessages(firstUser.ID, secondUser.ID) || [];
     messages.forEach(message => displayMessage(message, firstUser, secondUser));
 
@@ -51,8 +66,8 @@ export async function openPrivateMessage(firstUser, secondUser) {
     });
 
     // Handle sending message on button click
-    sendMessageButton.addEventListener("click", async function () {
-        await sendMessage(socket, firstUser, secondUser, sendMessageInput.value);
+    sendMessageButton.addEventListener("click", function () {
+        sendMessage(socket, firstUser, secondUser, sendMessageInput.value);
         sendMessageInput.value = "";
     });
 
@@ -64,6 +79,7 @@ export async function openPrivateMessage(firstUser, secondUser) {
 
 // WebSocket Connection (Reused if Already Connected)
 export function connectWebSocket(user) {
+    console.log(user);
     if (activeSockets[user.ID]) {
         return activeSockets[user.ID]; // Reuse existing connection
     }
@@ -71,7 +87,7 @@ export function connectWebSocket(user) {
     const socket = new WebSocket(`ws://localhost:8080/ws?user=${user.ID}`);
 
     socket.onopen = function () {
-        console.log(`Connected to WebSocket as ${user.Username}`);
+        console.log(`Connected to WebSocket as ${user.username}`);
     };
 
     socket.onmessage = function (event) {
@@ -84,7 +100,6 @@ export function connectWebSocket(user) {
         } else {
             // If chat is NOT open, show a notification
             showNotification(message);
-            unreadMessages[message.Sender.ID] = (unreadMessages[message.Sender.ID] || 0) + 1;
 
         }
 
@@ -181,19 +196,29 @@ function showNotification(message) {
     const contactID = message.Sender.id;
 
     const contactIndex = contactsList.findIndex(contact => contact.ID === contactID);
+
+    console.log("Contact Index: ", contactIndex);
+    console.log("Contact List: ", contactsList);
     
     if (contactIndex !== -1) {
-        // Move the contact to the top
         const [contact] = contactsList.splice(contactIndex, 1);
         contactsList.unshift(contact);
-        renderContacts(); // Re-render the contact list
-
-        // Show notification dot
+        if(document.getElementById("contact-container")){
+            renderContacts(); // Re-render to move it up
+        }
+        
         setTimeout(() => {
-            const notificationDot = document.querySelector(`.contact[data-id='${contactID}'] .notification-dot`);
-            if (notificationDot) {
-                notificationDot.style.display = "inline-block";
+            // Show notification dot on the contact
+            const contactDot = document.querySelector(`.contact[data-id='${contactID}'] .notification-dot`);
+            if (contactDot) {
+                contactDot.style.display = "inline-block";
             }
+            
+            // Mark contact as having unread messages
+            unreadMessages[contactID] = true;
+            
+            // Update sidebar notification dot
+            updateSidebarNotification();
         }, 0);
     }
 }
@@ -211,5 +236,40 @@ function showNotificationMAJ(message) {
         contactsList.unshift(contact);
         renderContacts(); // Re-render the contact list
 
+    }
+}
+
+
+// Hide red dot when a message is read
+export function hideContactNotification(contactID) {
+    // Remove unread status for this contact
+    //delete unreadMessages[contactID];
+
+    // Hide notification dot for this contact
+    const contactDot = document.querySelector(`.contact[data-id='${contactID}'] .notification-dot`);
+    if (contactDot) {
+        contactDot.style.display = "none";
+    }
+
+    // Update sidebar notification dot
+    updateSidebarNotification();
+}
+
+export function updateSidebarNotification() {
+    const sidebarDot = document.querySelector("#contacts .notification-dot");
+
+    console.log("notif, unread message", unreadMessages);
+
+    // Check if there are any unread messages left
+    const hasUnreadMessages = Object.keys(unreadMessages).length > 0;
+
+    if (hasUnreadMessages) {
+        sidebarDot.style.display = "inline-block";
+        sidebarDot.style.visibility = "visible";
+        sidebarDot.style.opacity = 1;
+    } else {
+        sidebarDot.style.display = "none";
+        sidebarDot.style.visibility = "hidden";
+        sidebarDot.style.opacity = 0;
     }
 }

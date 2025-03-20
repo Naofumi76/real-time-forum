@@ -92,3 +92,14 @@
     position: absolute;
     right: 5px;
 }
+
+#contacts {
+  position: relative; /* Needed for correct placement */
+}
+
+#contacts .notification-dot {
+  position: absolute;
+  top: 0;
+  right: -5px;
+  visibility: visible;
+}

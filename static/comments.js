@@ -110,7 +110,7 @@ export async function getComments(post) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        console.log("Received data:", data);
+        //console.log("Received data:", data);
 		comments = data
 		showComments(data, post)
     } catch (error) {
