@@ -103,3 +103,13 @@
   right: -5px;
   visibility: visible;
 }
+
+.online-dot {
+  width: 10px;
+  height: 10px;
+  background-color: green;
+  border-radius: 50%;
+  position: absolute;
+  right: 20px;
+  display: none; /* Hidden by default */
+}

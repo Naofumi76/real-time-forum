@@ -7,6 +7,7 @@ import (
 	"sync"
 	"real-time/db"
 	"strconv"
+    "encoding/json"
 
 
 	"github.com/gorilla/websocket"
@@ -89,3 +90,27 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
     }
 }
 
+func GetOnlineUsers(w http.ResponseWriter, r *http.Request) {
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	var onlineUsers []string
+	for userID := range clients {
+		onlineUsers = append(onlineUsers, userID)
+	}
+
+    //fmt.Println("Online users: ", onlineUsers)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+    response, err := json.Marshal(map[string]interface{}{
+		"online_users": onlineUsers,
+	})
+	if err != nil {
+		http.Error(w, "Failed to encode JSON", http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(response)
+}

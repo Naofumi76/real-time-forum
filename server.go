@@ -24,6 +24,7 @@ func main() {
 	http.HandleFunc("/api/postID", handlers.GetPostByIdHandler)
 	http.HandleFunc("/api/contacts", handlers.ContactsHandler)
 	http.HandleFunc("/ws", handlers.HandleConnections)
+	http.HandleFunc("/online-users", handlers.GetOnlineUsers)
 
 	port := ":8080"
 	fmt.Println("Server started at http://localhost" + port)

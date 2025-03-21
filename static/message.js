@@ -7,6 +7,7 @@ let offSet = 0 ;
 
 export async function openPrivateMessage(firstUser, secondUser) {
     console.log("Opening chat between:", firstUser, secondUser);
+    console.log("Active user:", activeSockets)
 
     offSet = 0;
     activeChatUser = secondUser;
@@ -139,7 +140,7 @@ export function connectWebSocket(user) {
 export async function sendMessage(socket, sender, receiver, messageContent) {
     if (!messageContent.trim()) return alert("Message cannot be empty!");
 
-	console.log("sendMessage", sender, receiver, messageContent)
+	//console.log("sendMessage", sender, receiver, messageContent)
 
     const message = {
         Sender: { ID: sender.ID, Username: sender.username },          // Sender as an object with ID
@@ -170,7 +171,12 @@ function displayMessage(message, firstUser, secondUser) {
     let messageSender = document.createElement("p");
 
 
-    const date = new Date(message.Date);
+    let date = null;
+    if(message.Date){
+        date = new Date(message.Date);
+    }else {
+        date = new Date(message.date);
+    }
 
     const formattedDate = date.toLocaleString('en-US', {
     day: '2-digit',
@@ -263,13 +269,11 @@ function showNotification(message) {
 
     const contactIndex = contactsList.findIndex(contact => contact.ID === contactID);
 
-    console.log("Contact Index: ", contactIndex);
-    console.log("Contact List: ", contactsList);
     
     if (contactIndex !== -1) {
         const [contact] = contactsList.splice(contactIndex, 1);
         contactsList.unshift(contact);
-        if(document.getElementById("contact-container")){
+        if(document.getElementById("contacts-container")){
             renderContacts(); // Re-render to move it up
         }
         
@@ -300,7 +304,9 @@ function showNotificationMAJ(message) {
         // Move the contact to the top
         const [contact] = contactsList.splice(contactIndex, 1);
         contactsList.unshift(contact);
-        renderContacts(); // Re-render the contact list
+        if(document.getElementById("contacts-container")){
+            renderContacts(); // Re-render to move it up
+        }
 
     }
 }
@@ -324,7 +330,6 @@ export function hideContactNotification(contactID) {
 export function updateSidebarNotification() {
     const sidebarDot = document.querySelector("#contacts .notification-dot");
 
-    console.log("notif, unread message", unreadMessages);
 
     // Check if there are any unread messages left
     const hasUnreadMessages = Object.keys(unreadMessages).length > 0;
@@ -339,3 +344,38 @@ export function updateSidebarNotification() {
         sidebarDot.style.opacity = 0;
     }
 }
+
+export async function fetchOnlineUsers() {
+    try {
+        const response = await fetch("http://localhost:8080/online-users");
+        const data = await response.json();
+        //console.log("Online users:", data.online_users);
+        updateOnlineStatus(data.online_users);
+    } catch (error) {
+        console.error("Error fetching online users:", error);
+    }
+}
+
+function updateOnlineStatus(onlineUsers) {
+
+
+    document.querySelectorAll(".contact").forEach(contactDiv => {
+        const contactID = contactDiv.dataset.id;
+        let onlineDot = contactDiv.querySelector(".online-dot");
+
+
+        if (!onlineDot) {
+            onlineDot = document.createElement("span");
+            onlineDot.className = "online-dot";
+            contactDiv.appendChild(onlineDot);
+        }
+
+        if (onlineUsers.includes(contactID)) {
+            onlineDot.style.display = "inline-block"; // Show green dot
+        } else {
+            onlineDot.style.display = "none"; // Hide green dot if offline
+        }
+    });
+}
+// Call this function periodically or on demand
+setInterval(fetchOnlineUsers, 5000); // Fetch every 5 seconds
