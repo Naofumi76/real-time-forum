@@ -34,6 +34,7 @@ func SendMessageHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Fetch message
 	db.CreateMessage(req.Sender, req.Receiver, req.Message, req.Date)
+	db.UpdateConversation(req.Sender, req.Receiver)
 
 	// Create response
 	response := SendMessageResponse{

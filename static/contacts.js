@@ -3,22 +3,43 @@ import { getCurrentUser } from "./user.js";
 
 export let contactsList = await getContacts(); // Store contacts globally
 
- async function getContacts(){
-    return await fetch("/api/contacts")
-       .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-       })
-       .then(data => {
-            //console.log("Received data:", data);
-            return data;
+async function getContacts() {
+    const currentUser = getCurrentUser();
+    if (!currentUser) {
+        console.error("No current user found");
+        return await fetch("/api/contacts")  // Fallback to original behavior
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                throw error;
+            });
+    }
+    
+    return await fetch("/api/contacts", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            current_user_id: currentUser.ID
         })
-        .catch(error => {
-            console.error('Error:', error);
-            throw error;
-        });
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+		console.log("REPONSE : ", response)
+        return response.json();
+    })
+    .catch(error => {
+        console.error('Error fetching contacts:', error);
+        throw error;
+    });
 }
 
 export async function showContacts() {

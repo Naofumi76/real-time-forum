@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 
 	"golang.org/x/crypto/bcrypt"
@@ -181,34 +182,78 @@ func SelectUserByEmail(email string) (*User, error) {
 	return &user, nil
 }
 
-
-func FetchAllUsers() ([]User, error) {
+func FetchAllUsers(currentUserID int) ([]User, error) {
 	db := GetDB()
 	defer db.Close()
 
-	query := `
-	SELECT u.id, u.username
-	FROM users u;`
+	var allUsers []User
 
-	rows, err := db.Query(query)
+	// Get users that the current user has conversations with, ordered by most recent conversation
+	conversationQuery := `
+    SELECT DISTINCT u.id, u.username, MAX(c.updated_at) as latest_update
+    FROM users u
+    JOIN conversations c ON (u.id = c.user1_id OR u.id = c.user2_id)
+    WHERE u.id != ? 
+    AND (c.user1_id = ? OR c.user2_id = ?)
+    GROUP BY u.id, u.username
+    ORDER BY latest_update DESC
+    `
+
+	conversationRows, err := db.Query(conversationQuery, currentUserID, currentUserID, currentUserID)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer conversationRows.Close()
 
-	var users []User
-	for rows.Next() {
+	// Track user IDs we've already added
+	addedUserIds := make(map[int]bool)
+	addedUserIds[currentUserID] = true // Exclude current user
+
+	for conversationRows.Next() {
 		var user User
-		err := rows.Scan(&user.ID, &user.Username)
+		var latestUpdate string
+		err := conversationRows.Scan(&user.ID, &user.Username, &latestUpdate)
 		if err != nil {
 			return nil, err
 		}
-		users = append(users, user)
+		allUsers = append(allUsers, user)
+		addedUserIds[user.ID] = true
 	}
 
-	if err = rows.Err(); err != nil {
+	if err = conversationRows.Err(); err != nil {
 		return nil, err
 	}
 
-	return users, nil
+	// Get all other users (without conversations)
+	otherUsersQuery := `
+    SELECT u.id, u.username
+    FROM users u
+    WHERE u.id != ?
+    ORDER BY u.username ASC
+    `
+
+	otherRows, err := db.Query(otherUsersQuery, currentUserID)
+	if err != nil {
+		return nil, err
+	}
+	defer otherRows.Close()
+
+	for otherRows.Next() {
+		var user User
+		err := otherRows.Scan(&user.ID, &user.Username)
+		if err != nil {
+			return nil, err
+		}
+		// Only add users not already included
+		if !addedUserIds[user.ID] {
+			allUsers = append(allUsers, user)
+		}
+	}
+
+	if err = otherRows.Err(); err != nil {
+		return nil, err
+	}
+
+	fmt.Println("FETCHED USERS: ", allUsers)
+	return allUsers, nil
 }
