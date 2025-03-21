@@ -1,4 +1,4 @@
-import {openPrivateMessage, unreadMessages, hideContactNotification, updateSidebarNotification} from "./message.js";
+import {openPrivateMessage, unreadMessages, hideContactNotification, updateSidebarNotification, fetchOnlineUsers} from "./message.js";
 import { getCurrentUser } from "./user.js";
 
 export let contactsList = await getContacts(); // Store contacts globally
@@ -74,9 +74,14 @@ export function renderContacts() {
         notificationDot.className = "notification-dot";
         notificationDot.style.display = unreadMessages[contact.ID] ? "inline-block" : "none";
 
+        const onlineDot = document.createElement("span");
+        onlineDot.className = "online-dot";
+        onlineDot.style.display = "none"; // Default to hidden
+
         nameContainer.appendChild(nameSpan);
         nameContainer.appendChild(notificationDot);
 
+        nameContainer.appendChild(onlineDot);
         contactDiv.appendChild(avatarDiv);
         contactDiv.appendChild(nameContainer);
         container.appendChild(contactDiv);
@@ -84,4 +89,5 @@ export function renderContacts() {
 
     // Update sidebar notification dot
     updateSidebarNotification();
+    fetchOnlineUsers(); 
 }
