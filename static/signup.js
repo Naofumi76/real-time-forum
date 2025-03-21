@@ -19,6 +19,7 @@ export function signupPage() {
 	inputEmail = document.createElement('input')
 	inputEmail.type = 'email'
 	inputEmail.placeholder = 'Your email'
+	inputEmail.required = true
 	formSignup.appendChild(inputEmail)
 	
 	inputAge = document.createElement('input')

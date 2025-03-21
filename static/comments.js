@@ -1,4 +1,5 @@
 import { sendPostData } from "./post.js";
+import { getCurrentUser } from "./user.js";
 
 export async function showComments(comments, originalPost) {
 	function createPostElement(post) {
@@ -63,11 +64,8 @@ export async function showComments(comments, originalPost) {
 
 	const originalPostDiv = document.createElement("div");
     // Create and append the original post
-	const originalPostText = document.createElement('p')
-	originalPostText.textContent = `Original post : `;
     const originalPostContainer = createPostElement(originalPost);
 
-    originalPostDiv.appendChild(originalPostText)
 	originalPostDiv.appendChild(originalPostContainer)
 
 	postContainer.appendChild(originalPostDiv);
@@ -127,7 +125,7 @@ function submitComment(){
 	const title = document.getElementById("comment_title").value;
 	const content = document.getElementById("comment-input").value;
 	const parent_id = document.getElementById("parent_id").value;
-	const sender_id = 1; // Update this code when session are available C:<
+	const sender_id = getCurrentUser().ID; 
 
 	if (!content ){
 		alert("Please write a comment");

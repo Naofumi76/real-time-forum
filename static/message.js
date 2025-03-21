@@ -6,8 +6,8 @@ export let unreadMessages = {};
 let offSet = 0 ;
 
 export async function openPrivateMessage(firstUser, secondUser) {
-    console.log("Opening chat between:", firstUser, secondUser);
-    console.log("Active user:", activeSockets)
+    //console.log("Opening chat between:", firstUser, secondUser);
+    //console.log("Active user:", activeSockets)
 
     offSet = 0;
     activeChatUser = secondUser;
@@ -22,6 +22,10 @@ export async function openPrivateMessage(firstUser, secondUser) {
     // Ensure WebSocket is connected
     const socket = connectWebSocket(firstUser);
 
+    if (document.querySelector('.message-container')){
+        console.log('Removed')
+        document.querySelector('.message-container').remove();
+    }
 
     let messageContainer = document.createElement("div");
     messageContainer.className = "message-container";

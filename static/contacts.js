@@ -98,7 +98,14 @@ export function renderContacts() {
         container.appendChild(contactDiv);
     });
 
+    document.getElementById('contacts-container').style.display = 'block';
+
     // Update sidebar notification dot
     updateSidebarNotification();
     fetchOnlineUsers(); 
+}
+
+export function hideContact(){
+    let contact = document.getElementById('contacts-container');
+    contact.style.display = 'none';
 }
