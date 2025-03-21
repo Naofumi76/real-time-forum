@@ -1,50 +1,40 @@
 import {openPrivateMessage, unreadMessages, hideContactNotification, updateSidebarNotification} from "./message.js";
 import { getCurrentUser } from "./user.js";
 
-export let contactsList = await getContacts(); // Store contacts globally
+export let contactsList = [];
 
 async function getContacts() {
     const currentUser = getCurrentUser();
     if (!currentUser) {
-        console.error("No current user found");
-        return await fetch("/api/contacts")  // Fallback to original behavior
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                throw error;
-            });
+        console.error("No current user found - cannot fetch contacts");
+        return [];
     }
     
-    return await fetch("/api/contacts", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            current_user_id: currentUser.ID
-        })
-    })
-    .then(response => {
+    try {
+        const response = await fetch("/api/contacts", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                current_user_id: currentUser.ID
+            })
+        });
+        
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-		console.log("REPONSE : ", response)
-        return response.json();
-    })
-    .catch(error => {
+        
+        return await response.json();
+    } catch (error) {
         console.error('Error fetching contacts:', error);
-        throw error;
-    });
+        return [];
+    }
 }
 
 export async function showContacts() {
     try {
-        contactsList = await getContacts(); // Store contacts for updating later
+        contactsList = await getContacts();
         renderContacts();
     } catch (error) {
         console.error("Failed to load contacts:", error);
