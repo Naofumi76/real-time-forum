@@ -10,6 +10,7 @@ import (
 type GetMessageRequest struct {
 	Sender   int `json:"sender"`
 	Receiver int `json:"receiver"`
+	Offset int `json:"offset"`
 }
 
 type GetMessageResponse struct {
@@ -34,7 +35,7 @@ func GetMessagesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Fetch messages from DB
-	messages := db.FetchMessages(req.Sender, req.Receiver)
+	messages := db.FetchMessages(req.Sender, req.Receiver, req.Offset)
 
 	// Create response
 	response := GetMessageResponse{

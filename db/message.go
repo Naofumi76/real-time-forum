@@ -16,13 +16,19 @@ func CreateMessage(sender, receiver int, content, date string) {
 	}
 }
 
-func FetchMessages(sender, receiver int) []Message {
+func FetchMessages(sender, receiver, offset int) []Message {
 	db := GetDB()
 	defer db.Close()
 
-	query := "SELECT * FROM messages WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?) ORDER BY id ASC"
-	rows, err := db.Query(query, sender, receiver, receiver, sender)
+	limit := 10
 
+	query := `
+        SELECT * FROM messages 
+        WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?) 
+        ORDER BY id DESC 
+        LIMIT ? OFFSET ?`
+	
+	rows, err := db.Query(query, sender, receiver, receiver, sender, limit, offset)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil
@@ -42,10 +48,13 @@ func FetchMessages(sender, receiver int) []Message {
 		}
 		messages = append(messages, message)
 	}
+
 	if err = rows.Err(); err != nil {
 		log.Printf("Error iterating rows: %v", err)
 		return []Message{}
 	}
+
+
 	return messages
 }
 

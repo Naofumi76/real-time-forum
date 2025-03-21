@@ -3,16 +3,14 @@ import { contactsList, renderContacts } from "./contacts.js";
 export let activeSockets = {}; // Store active WebSocket connections per user
 let activeChatUser = null;
 export let unreadMessages = {};
+let offSet = 0 ;
 
 export async function openPrivateMessage(firstUser, secondUser) {
     console.log("Opening chat between:", firstUser, secondUser);
 
+    offSet = 0;
     activeChatUser = secondUser;
-
-    console.log("unreadMessages", unreadMessages, unreadMessages[secondUser.ID], secondUser.ID);
-
-    if (unreadMessages.hasOwnProperty(secondUser.ID)) {
-        console.log(`Removing unread messages for ${secondUser.ID}`);
+  if (unreadMessages.hasOwnProperty(secondUser.ID)) {
         delete unreadMessages[secondUser.ID];
         hideContactNotification(secondUser.ID);
         updateSidebarNotification() // Hide notification dot
@@ -41,10 +39,33 @@ export async function openPrivateMessage(firstUser, secondUser) {
 
     //console.log("user are : ", firstUser, secondUser);
 
-    let messages = await getMessages(firstUser.ID, secondUser.ID) || [];
+    let messages = await getMessages(firstUser.ID, secondUser.ID, offSet) || [];
+    offSet += messages.length
+    messages.reverse();
     messages.forEach(message => displayMessage(message, firstUser, secondUser));
 
     messageContainer.appendChild(textContainer);
+
+    textContainer.addEventListener("scroll", async function () {
+        console.log("Scroll detected");
+        if (textContainer.scrollTop === 0) {
+            console.log("Fetching more messages...");
+            
+            let olderMessages = await getMessages(firstUser.ID, secondUser.ID, offSet) || [];
+            if (olderMessages.length > 0) {
+                offSet += olderMessages.length;
+    
+                let previousHeight = textContainer.scrollHeight; // Save current scroll height before adding messages
+    
+                olderMessages.forEach(message => {
+                    displayMessageAtTop(message, firstUser, secondUser);
+                });
+    
+                // Maintain scroll position after loading messages
+                textContainer.scrollTop = textContainer.scrollHeight - previousHeight;
+            }
+        }
+    });
 
     // Input Field
     let sendMessageInput = document.createElement("input");
@@ -148,13 +169,26 @@ function displayMessage(message, firstUser, secondUser) {
     let messageContent = document.createElement("p");
     let messageSender = document.createElement("p");
 
+
+    const date = new Date(message.Date);
+
+    const formattedDate = date.toLocaleString('en-US', {
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false, // Set to true for 12-hour format
+    timeZone: 'UTC' // Adjust according to your desired timezone
+    });
+
+
     // Ensure the message content is not empty
     messageContent.textContent = message.Content || "(No content)";
-    messageSender.textContent = message.Sender.ID === firstUser.ID ? "You" : (secondUser ? secondUser.Username : message.Sender.Username);
+    messageSender.textContent = message.Sender.ID === firstUser.ID ? firstUser.username +" at "+ formattedDate : (secondUser ? secondUser.Username : message.Sender.Username) + " at "+formattedDate;
     
     // Assign classes for styling
     finalMessage.classList.add(
-        message.sender === firstUser.ID ? "message-sender-you" : "message-sender-other"
+        message.Sender.ID === firstUser.ID ? "message-sender-you" : "message-sender-other"
     );
     
     // Append elements properly
@@ -166,16 +200,50 @@ function displayMessage(message, firstUser, secondUser) {
     textContainer.scrollTop = textContainer.scrollHeight;
 }
 
+function displayMessageAtTop(message, firstUser, secondUser) {
+    let textContainer = document.querySelector(`.text-container`);
+
+    if (!textContainer) return;
+
+    let finalMessage = document.createElement("div");
+    let messageContent = document.createElement("p");
+    let messageSender = document.createElement("p");
+
+    const date = new Date(message.Date);
+    const formattedDate = date.toLocaleString('en-US', {
+        day: '2-digit',
+        month: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+        timeZone: 'UTC'
+    });
+
+    messageContent.textContent = message.Content || "(No content)";
+    messageSender.textContent = message.Sender.ID === firstUser.ID 
+        ? firstUser.username + " at " + formattedDate 
+        : (secondUser ? secondUser.Username : message.Sender.Username) + " at " + formattedDate;
+
+    finalMessage.classList.add(
+        message.Sender.ID === firstUser.ID ? "message-sender-you" : "message-sender-other"
+    );
+
+    finalMessage.appendChild(messageSender);
+    finalMessage.appendChild(messageContent);
+
+    textContainer.prepend(finalMessage); // Add messages at the top
+}
+
 
 // Fetch Past Messages from Server
-export async function getMessages(firstUserID, secondUserID) {
+export async function getMessages(firstUserID, secondUserID, offSet) {
     console.log("Fetching messages for:", firstUserID, secondUserID);
 
     try {
         const response = await fetch("http://localhost:8080/getMessages", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ sender: firstUserID, receiver: secondUserID }),
+            body: JSON.stringify({ sender: firstUserID, receiver: secondUserID, offSet: offSet}),
         });
 
         if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
@@ -187,8 +255,6 @@ export async function getMessages(firstUserID, secondUserID) {
         return [];
     }
 }
-
-
 
 function showNotification(message) {
     // Find the contact in the list
