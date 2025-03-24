@@ -123,23 +123,23 @@ export async function getComments(post) {
 
 function submitComment(){
 	const title = document.getElementById("comment_title").value;
-	const content = document.getElementById("comment-input").value;
+	const content = document.getElementById("comment-input").value.trim();
 	const parent_id = document.getElementById("parent_id").value;
 	const sender_id = getCurrentUser().ID; 
 
-	if (!content ){
-		alert("Please write a comment");
+	if (!content){
+		alert("Please write a comment. Comment cannot be empty.");
         return;
 	}
-		const formData = {
-			title: title,
-			content: content,
-			picture:"",
-            parent_id: parent_id ? parseInt(parent_id) : null,
-            sender_id: sender_id
-		}
-
 	
+	const formData = {
+		title: title,
+		content: content,
+		picture:"",
+        parent_id: parent_id ? parseInt(parent_id) : null,
+        sender_id: sender_id
+	}
+
 	document.getElementById('comment-input-container').remove();
 	sendPostData(formData, true);
 }

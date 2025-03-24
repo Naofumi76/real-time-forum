@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"real-time/db"
+	"strings"
 	"time"
-	
 )
 
 type CreatePostRequest struct {
@@ -36,6 +36,15 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Trim whitespace
+	req.Title = strings.TrimSpace(req.Title)
+	req.Content = strings.TrimSpace(req.Content)
+
+	// Validate required fields
+	if req.Title == "" || req.Content == "" {
+		http.Error(w, `{"success": false, "message": "Title and content cannot be empty"}`, http.StatusBadRequest)
+		return
+	}
 
 	db.CreatePost(req.SenderID, req.Title, req.Content, req.Picture, time.Now().Format("2006-01-02 15:04:05"), req.ParentID)
 

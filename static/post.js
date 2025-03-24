@@ -145,13 +145,13 @@ export function createPost() {
 }
 
 export function submitPost() {
-    const title = document.getElementById("postTitle").value;
-    const content = document.getElementById("postContent").value;
+    const title = document.getElementById("postTitle").value.trim();
+    const content = document.getElementById("postContent").value.trim();
     const imageFile = document.getElementById("postImage").files[0];
     const sender_id = user.getCurrentUser().ID; // Change when sessions are available
 
     if (!title || !content || !sender_id) {
-        alert("Please fill in all required fields.");
+        alert("Please fill in all required fields. Title and content cannot be empty.");
         return;
     }
 
