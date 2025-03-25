@@ -16,6 +16,7 @@ export async function getUserFromSession() {
 					lastname: data.lastname,
 				}
 				user.setCurrentUser(currentUser)
+				console.log("user :", currentUser)
 				return user;
 			} else {
 				return null;

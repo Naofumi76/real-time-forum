@@ -50,15 +50,19 @@ export function submitLoginForm(event) {
 		.then(async (response) => {
 			const text = await response.text();
 			try {
+				console.log("bite")
 				return JSON.parse(text);
 			} catch (error) {
 				throw new Error("Invalid JSON response from server: " + text);
 			}
 		})
 		.then((data) => {
+			console.log("data: ",data)
 			if (data.success) {
-				session.getUserFromSession()
-				homePage(); // Load homepage only on success
+                // Wait for the session to be set up before loading the homepage
+                session.getUserFromSession().then(() => {
+                    homePage(); // Load homepage only on success
+                });
 			} else {
 				// console.error("Login failed:", data.message);
 				alert("User not found, please login again");
