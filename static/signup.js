@@ -95,8 +95,9 @@ export function submitSignupForm(event) {
         .then((data) => {
             if (data.success) {
                 alert(data.message);
-				session.getUserFromSession()
-                homePage(); // Load homepage only on success
+				session.getUserFromSession().then(() => {
+					homePage(); // Load homepage only on success
+				});
             } else {
                 alert("Error: " + data.message);
             }

@@ -196,7 +196,7 @@ func FetchAllUsers(currentUserID int) ([]User, error) {
     WHERE u.id != ? 
     AND (c.user1_id = ? OR c.user2_id = ?)
     GROUP BY u.id, u.username
-    ORDER BY latest_update DESC
+    ORDER BY LOWER(latest_update) DESC
     `
 
 	conversationRows, err := db.Query(conversationQuery, currentUserID, currentUserID, currentUserID)
@@ -229,7 +229,7 @@ func FetchAllUsers(currentUserID int) ([]User, error) {
     SELECT u.id, u.username
     FROM users u
     WHERE u.id != ?
-    ORDER BY u.username ASC
+    ORDER BY LOWER(u.username) ASC
     `
 
 	otherRows, err := db.Query(otherUsersQuery, currentUserID)
