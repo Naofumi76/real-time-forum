@@ -60,6 +60,23 @@ nav ul li .notification-dot{
     opacity: 1;
 }
 
+/* Sidebar version of create post */
+nav li#createPost {
+	background-color: transparent;
+	height: auto;
+	width: auto;
+	border-radius: 0;
+	box-shadow: none;
+	display: flex;
+	justify-content: left;
+	font-size: inherit;
+}
+
+nav li#createPost:hover {
+	transform: none;
+	background-color: transparent;
+}
+
 
 nav ul li.active,
 nav ul li:hover {

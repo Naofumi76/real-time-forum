@@ -79,39 +79,16 @@ export async function getPosts() {
 export function createPost() {
     const modal = document.createElement("div");
     modal.className = "modal";
-    modal.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.4); /* Dark background overlay */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 999; /* Makes sure the modal is above other content */
-    `;
-
 
     const modalContent = document.createElement("div");
     modalContent.className = "modal-content";
-    modalContent.style.cssText = `
-    background-color: #fefefe;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 500px;
-    position: relative;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    display: block; /* Ensure modal content itself isn't using flex or row layout */
-    `;
 
     const title = document.createElement("textarea");
     title.id = "postTitle";
     title.placeholder = "Enter post title";
-    title.style.width = "100%";
-    title.style.marginBottom = "10px";
+	title.style.width = "100%";
+	title.style.marginBottom = "10px";
+    title.rows = "2";
 
     const content = document.createElement("textarea");
     content.id = "postContent";
@@ -119,12 +96,13 @@ export function createPost() {
     content.style.width = "100%";
     content.style.height = "100px";
     content.style.marginBottom = "10px";
+    content.rows = "6";
 
     const image = document.createElement("input");
     image.type = "file";
     image.id = "postImage";
     image.accept = "image/*";
-    image.style.marginBottom = "10px";
+	image.style.marginBottom = "10px";
 
     const submitButton = document.createElement("button");
     submitButton.textContent = "Submit Post";
@@ -136,7 +114,7 @@ export function createPost() {
 
     modalContent.appendChild(title);
     modalContent.appendChild(content);
-    modalContent.appendChild(image);
+	modalContent.appendChild(image);
     modalContent.appendChild(submitButton);
     modalContent.appendChild(closeButton);
 
