@@ -5,6 +5,27 @@ let activeChatUser = null;
 export let unreadMessages = {};
 let offSet = 0 ;
 
+function throttle(func, delay) {
+    let lastCall = 0;
+    let timeout;
+    return function (...args) {
+        const now = Date.now();
+        const context = this;
+
+        if (now - lastCall > delay) {
+            lastCall = now;
+            func.apply(context, args);
+        } else {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                lastCall = Date.now();
+                func.apply(context, args);
+            }, delay);
+        }
+    };
+}
+
+
 export async function openPrivateMessage(firstUser, secondUser) {
     //console.log("Opening chat between:", firstUser, secondUser);
     //console.log("Active user:", activeSockets)
@@ -51,26 +72,27 @@ export async function openPrivateMessage(firstUser, secondUser) {
 
     messageContainer.appendChild(textContainer);
 
-    textContainer.addEventListener("scroll", async function () {
-        console.log("Scroll detected");
-        if (textContainer.scrollTop === 0) {
-            console.log("Fetching more messages...");
-            
-            let olderMessages = await getMessages(firstUser.ID, secondUser.ID, offSet) || [];
-            if (olderMessages.length > 0) {
-                offSet += olderMessages.length;
-    
-                let previousHeight = textContainer.scrollHeight; // Save current scroll height before adding messages
-    
-                olderMessages.forEach(message => {
-                    displayMessageAtTop(message, firstUser, secondUser);
-                });
-    
-                // Maintain scroll position after loading messages
-                textContainer.scrollTop = textContainer.scrollHeight - previousHeight;
-            }
-        }
-    });
+	async function scroll() {
+		if (textContainer.scrollTop === 0) {
+			console.log("Fetching more messages...");
+			
+			let olderMessages = await getMessages(firstUser.ID, secondUser.ID, offSet) || [];
+			if (olderMessages.length > 0) {
+				offSet += olderMessages.length;
+	
+				let previousHeight = textContainer.scrollHeight; // Save current scroll height before adding messages
+	
+				olderMessages.forEach(message => {
+					displayMessageAtTop(message, firstUser, secondUser);
+				});
+	
+				// Maintain scroll position after loading messages
+				textContainer.scrollTop = textContainer.scrollHeight - previousHeight;
+			}
+		}
+	}
+
+	textContainer.addEventListener("scroll", throttle(scroll, 300));
 
     // Input Field
     let sendMessageInput = document.createElement("input");
