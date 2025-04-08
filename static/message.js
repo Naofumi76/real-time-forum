@@ -106,11 +106,23 @@ export async function openPrivateMessage(firstUser, secondUser) {
     sendMessageButton.className = "send-button";
 
     // Handle sending message on "Enter" key
-    sendMessageInput.addEventListener("keydown", function (event) {
-        if (event.key === "Enter") {
-            sendMessage(socket, firstUser, secondUser, sendMessageInput.value);
-            sendMessageInput.value = "";
-        }
+    let typingTimeout;
+
+    sendMessageInput.addEventListener("input", function () {
+        socket.send(JSON.stringify({
+            type: "typing",
+            sender: { ID: firstUser.ID, Username: firstUser.username },
+            receiver: { ID: secondUser.ID, Username: secondUser.Username },
+        }));
+    
+        clearTimeout(typingTimeout);
+        typingTimeout = setTimeout(() => {
+            socket.send(JSON.stringify({
+                type: "stopTyping",
+                sender: { ID: firstUser.ID },
+                receiver: { ID: secondUser.ID },
+            }));
+        }, 2000); // Stop typing after 2s of no input
     });
 
     // Handle sending message on button click
@@ -119,10 +131,33 @@ export async function openPrivateMessage(firstUser, secondUser) {
         sendMessageInput.value = "";
     });
 
+    let typingIndicator = document.createElement("div");
+    typingIndicator.className = "typing-indicator";
+    typingIndicator.textContent = `${secondUser.Username} is typing...`;
+    typingIndicator.style.display = "none";
+    messageContainer.appendChild(typingIndicator);
+
     messageContainer.appendChild(sendMessageInput);
     messageContainer.appendChild(sendMessageButton);
 
+
+
     document.body.appendChild(messageContainer);
+}
+
+
+function showTypingIndicator(user) {
+    const indicator = document.querySelector(".typing-indicator");
+    if (activeChatUser && user.ID == activeChatUser.ID) {
+        indicator.style.display = "block";
+    }
+}
+
+function hideTypingIndicator(user) {
+    const indicator = document.querySelector(".typing-indicator");
+    if (activeChatUser && user.ID == activeChatUser.ID) {
+        indicator.style.display = "none";
+    }
 }
 
 // WebSocket Connection (Reused if Already Connected)
@@ -139,6 +174,21 @@ export function connectWebSocket(user) {
     };
 
     socket.onmessage = function (event) {
+
+        const data = JSON.parse(event.data);
+
+        if (data.type === "typing") {
+            console.log("someone is typing: ", data)
+
+            showTypingIndicator(data.sender);
+            return;
+        }
+    
+        if (data.type === "stopTyping") {
+            hideTypingIndicator(data.sender);
+            return;
+        }
+
         const message = JSON.parse(event.data);
         console.log("📩 New private message received:", message, activeChatUser, message.Sender.Username);
     
