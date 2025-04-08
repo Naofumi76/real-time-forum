@@ -50,7 +50,6 @@ export function submitLoginForm(event) {
 		.then(async (response) => {
 			const text = await response.text();
 			try {
-				console.log("bite")
 				return JSON.parse(text);
 			} catch (error) {
 				throw new Error("Invalid JSON response from server: " + text);
