@@ -194,8 +194,10 @@ export function connectWebSocket(user) {
     
         if (activeChatUser && activeChatUser.Username === message.Sender.Username) {
             // If chat is open, display the message in the chat
+            console.log("going inside the if")
             displayMessage(message, user, message.Sender);
         } else {
+            console.log(" going inside the else")
             // If chat is NOT open, show a notification
             showNotification(message);
 
@@ -345,7 +347,7 @@ function showNotification(message) {
 
     const contactIndex = contactsList.findIndex(contact => contact.ID === contactID);
 
-    
+    console.log("contactIndex :", contactIndex);
     if (contactIndex !== -1) {
         const [contact] = contactsList.splice(contactIndex, 1);
         contactsList.unshift(contact);
@@ -353,20 +355,20 @@ function showNotification(message) {
             renderContacts(); // Re-render to move it up
         }
         
-        setTimeout(() => {
-            // Show notification dot on the contact
-            const contactDot = document.querySelector(`.contact[data-id='${contactID}'] .notification-dot`);
-            if (contactDot) {
-                contactDot.style.display = "inline-block";
-            }
-            
-            // Mark contact as having unread messages
-            unreadMessages[contactID] = true;
-            
-            // Update sidebar notification dot
-            updateSidebarNotification();
-        }, 0);
     }
+    setTimeout(() => {
+        // Show notification dot on the contact
+        const contactDot = document.querySelector(`.contact[data-id='${contactID}'] .notification-dot`);
+        if (contactDot) {
+            contactDot.style.display = "inline-block";
+        }
+        
+        // Mark contact as having unread messages
+        unreadMessages[contactID] = true;
+        
+        // Update sidebar notification dot
+        updateSidebarNotification();
+    }, 0);
 }
 
 function showNotificationMAJ(message) {
