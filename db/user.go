@@ -3,7 +3,6 @@ package db
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"log"
 
 	"golang.org/x/crypto/bcrypt"
@@ -254,6 +253,5 @@ func FetchAllUsers(currentUserID int) ([]User, error) {
 		return nil, err
 	}
 
-	fmt.Println("FETCHED USERS: ", allUsers)
 	return allUsers, nil
 }

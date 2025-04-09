@@ -6,6 +6,8 @@ import { getCurrentUser } from './user.js';
 import { disconnectUser, getUserFromSession } from './session.js';
 import { createIndexButton, indexListener } from './registerPage.js';
 
+export let socket = null;
+
 
 export let contactOpen = false;
 export async function displaySideBar() {
@@ -13,7 +15,7 @@ export async function displaySideBar() {
     const currentUser = await getCurrentUser(); // This will return the current user object
 
     // Connect to WebSocket for the current user
-    const socket = connectWebSocket(currentUser);
+    socket = connectWebSocket(currentUser);
 
     const bar = document.createElement('nav');
     bar.innerHTML = `
@@ -45,9 +47,7 @@ export async function displaySideBar() {
             contactOpen = false;
             hideContact();
         } else {
-            console.log('click', contactOpen);
             contactOpen = true;
-            console.log('contactOpen', contactOpen);
             showContacts()
         }
     });
@@ -70,9 +70,7 @@ export async function displaySideBar() {
     const logout = document.getElementById('logout');
     logout.addEventListener('click', async () => {
         try {
-            console.log("Logout button clicked");
             await disconnectUser();
-            console.log("Logout successful, clearing UI");
             // Close WebSocket connection if open
             if (socket && socket.readyState === WebSocket.OPEN) {
                 socket.close();
@@ -92,6 +90,8 @@ export async function displaySideBar() {
 
     contacts.appendChild(notificationDot);
 
+    await showContacts()
+    hideContact()   
 }
 
 function updateSidebarNotification() {
