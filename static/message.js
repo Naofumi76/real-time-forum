@@ -1,4 +1,5 @@
 import { contactsList, renderContacts } from "./contacts.js";
+import { socket } from "./sideBar.js";
 
 export let activeSockets = {}; // Store active WebSocket connections per user
 let activeChatUser = null;
@@ -41,10 +42,9 @@ export async function openPrivateMessage(firstUser, secondUser) {
     }
 
     // Ensure WebSocket is connected
-    const socket = connectWebSocket(firstUser);
 
     if (document.querySelector('.message-container')){
-        console.log('Removed')
+        //console.log('Removed')
         document.querySelector('.message-container').remove();
     }
 
@@ -74,7 +74,7 @@ export async function openPrivateMessage(firstUser, secondUser) {
 
 	async function scroll() {
 		if (textContainer.scrollTop === 0) {
-			console.log("Fetching more messages...");
+			//console.log("Fetching more messages...");
 			
 			let olderMessages = await getMessages(firstUser.ID, secondUser.ID, offSet) || [];
 			if (olderMessages.length > 0) {
@@ -162,7 +162,7 @@ function hideTypingIndicator(user) {
 
 // WebSocket Connection (Reused if Already Connected)
 export function connectWebSocket(user) {
-    console.log(user);
+    //console.log(user);
     if (activeSockets[user.ID]) {
         return activeSockets[user.ID]; // Reuse existing connection
     }
@@ -170,16 +170,19 @@ export function connectWebSocket(user) {
     const socket = new WebSocket(`ws://localhost:8080/ws?user=${user.ID}`);
 
     socket.onopen = function () {
-        console.log(`Connected to WebSocket as ${user.username}`);
+        //console.log(`Connected to WebSocket as ${user.username}`);
     };
 
     socket.onmessage = function (event) {
 
         const data = JSON.parse(event.data);
 
-        if (data.type === "typing") {
-            console.log("someone is typing: ", data)
+        if (data.type === "online_users_update"){
+            updateOnlineStatus(data.online_users)
+            return;
+        }
 
+        if (data.type === "typing") {
             showTypingIndicator(data.sender);
             return;
         }
@@ -190,23 +193,21 @@ export function connectWebSocket(user) {
         }
 
         const message = JSON.parse(event.data);
-        console.log("📩 New private message received:", message, activeChatUser, message.Sender.Username);
+        //console.log("📩 New private message received:", message, activeChatUser, message.Sender.Username);
     
         if (activeChatUser && activeChatUser.Username === message.Sender.Username) {
             // If chat is open, display the message in the chat
-            console.log("going inside the if")
             displayMessage(message, user, message.Sender);
         } else {
-            console.log(" going inside the else")
+            //console.log(data)
             // If chat is NOT open, show a notification
             showNotification(message);
-
         }
 
     };
 
     socket.onclose = function () {
-        console.log("WebSocket Disconnected!");
+        //console.log("WebSocket Disconnected!");
         delete activeSockets[user.ID]; // Remove from active connections
     };
 
@@ -239,7 +240,7 @@ function displayMessage(message, firstUser, secondUser) {
     let textContainer = document.querySelector(`.text-container`);
 
     if (!textContainer) {
-        console.warn("⚠️ Text container not found! Retrying in 500ms...");
+        //console.warn("⚠️ Text container not found! Retrying in 500ms...");
         setTimeout(() => displayMessage(message, firstUser, secondUser), 500);
         return;
     }
@@ -321,7 +322,6 @@ function displayMessageAtTop(message, firstUser, secondUser) {
 
 // Fetch Past Messages from Server
 export async function getMessages(firstUserID, secondUserID, offSet) {
-    console.log("Fetching messages for:", firstUserID, secondUserID);
 
     try {
         const response = await fetch("http://localhost:8080/getMessages", {
@@ -347,7 +347,6 @@ function showNotification(message) {
 
     const contactIndex = contactsList.findIndex(contact => contact.ID === contactID);
 
-    console.log("contactIndex :", contactIndex);
     if (contactIndex !== -1) {
         const [contact] = contactsList.splice(contactIndex, 1);
         contactsList.unshift(contact);
@@ -355,20 +354,20 @@ function showNotification(message) {
             renderContacts(); // Re-render to move it up
         }
         
+        setTimeout(() => {
+            // Show notification dot on the contact
+            const contactDot = document.querySelector(`.contact[data-id='${contactID}'] .notification-dot`);
+            if (contactDot) {
+                contactDot.style.display = "inline-block";
+            }
+            
+            // Mark contact as having unread messages
+            unreadMessages[contactID] = true;
+            
+            // Update sidebar notification dot
+            updateSidebarNotification();
+        }, 0);
     }
-    setTimeout(() => {
-        // Show notification dot on the contact
-        const contactDot = document.querySelector(`.contact[data-id='${contactID}'] .notification-dot`);
-        if (contactDot) {
-            contactDot.style.display = "inline-block";
-        }
-        
-        // Mark contact as having unread messages
-        unreadMessages[contactID] = true;
-        
-        // Update sidebar notification dot
-        updateSidebarNotification();
-    }, 0);
 }
 
 function showNotificationMAJ(message) {
@@ -456,4 +455,4 @@ function updateOnlineStatus(onlineUsers) {
     });
 }
 // Call this function periodically or on demand
-setInterval(fetchOnlineUsers, 5000); // Fetch every 5 seconds
+//setInterval(fetchOnlineUsers, 5000); // Fetch every 5 seconds

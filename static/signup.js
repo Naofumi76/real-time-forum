@@ -58,6 +58,22 @@ export function signupPage() {
 	document.body.appendChild(formSignup)
 }
 
+function checkEmail(email) {
+	var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+	return re.test(email);
+}
+function validate() {
+	var email = document.getElementById("email").value;
+
+	if (checkEmail(email)) {
+		return true;
+	} else {
+		alert('Adresse e-mail non valide');
+	}
+	return false;
+}
+
+
 export function submitSignupForm(event) {
     event.preventDefault(); // Prevent page reload
 
@@ -71,6 +87,8 @@ export function submitSignupForm(event) {
         first_name: document.querySelector("input[placeholder='Your first name']").value.trim(),
         last_name: document.querySelector("input[placeholder='Your last name']").value.trim(),
     };
+
+	validate()
 
     // Basic client-side validation
     if (!formData.username || !formData.email || !formData.password || !formData.first_name || !formData.last_name) {

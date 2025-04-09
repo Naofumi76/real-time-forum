@@ -52,7 +52,7 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
     clients[user] = ws
     mutex.Unlock()
     fmt.Printf("User %s connected\n", user)
-	
+	broadcastOnlineUsers()
     for {
         var rawMsg map[string]interface{}
         err := ws.ReadJSON(&rawMsg)
@@ -91,8 +91,38 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
             receiverWS.WriteJSON(msg)
         }
     }
+    mutex.Lock()
+	delete(clients, user)
+	mutex.Unlock()
+	fmt.Printf("User %s disconnected\n", user)
+	broadcastOnlineUsers()
     
 }
+
+
+func broadcastOnlineUsers() {
+    mutex.Lock()
+    defer mutex.Unlock()
+
+    var onlineUsers []string
+    for userID := range clients {
+        onlineUsers = append(onlineUsers, userID)
+    }
+
+    payload := map[string]interface{}{
+        "type": "online_users_update",
+        "online_users": onlineUsers,
+    }
+
+    for _, ws := range clients {
+        err := ws.WriteJSON(payload)
+        if err != nil {
+            log.Println("Error broadcasting online users:", err)
+        }
+    }
+}
+
+
 
 func GetOnlineUsers(w http.ResponseWriter, r *http.Request) {
 	mutex.Lock()
@@ -103,7 +133,6 @@ func GetOnlineUsers(w http.ResponseWriter, r *http.Request) {
 		onlineUsers = append(onlineUsers, userID)
 	}
 
-    //fmt.Println("Online users: ", onlineUsers)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

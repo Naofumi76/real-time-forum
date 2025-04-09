@@ -56,7 +56,7 @@ export function submitLoginForm(event) {
 			}
 		})
 		.then((data) => {
-			console.log("data: ",data)
+			//console.log("data: ",data)
 			if (data.success) {
                 // Wait for the session to be set up before loading the homepage
                 session.getUserFromSession().then(() => {
