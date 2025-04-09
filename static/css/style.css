@@ -1,100 +1,69 @@
-:root {
-    --primary-color: #c8dc71;
-    --gradient-color: linear-gradient(180deg, #8dac07 0%, #00d2ff 100%);
-  }
-  
-  * {
-    font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
-    margin: 0;
-    box-sizing: border-box;
-    /*user-select: none;*/
-  }
-  body {
-    color:white;
-    background: linear-gradient(180deg, #04fafd, 5%, #119dff, 50%, #030423);
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    
-    display: flex;
-    flex-direction: column;
-    place-items: center;
-    height: 100vh;
-  }
-  
-  .container {
-    max-width: 450px;
-    margin: 0 auto;
-  }
-  
-  .btn-primary, button {
-    border-radius: 5px;
-    margin: 10px;
-    padding: 10px;
-    place-items: center;
-    width: 80%;
-    text-decoration: none;
-    color: rgb(151, 151, 151);
-    transition: all 0.25s ease-in-out;
-    box-shadow: inset 0 0 0 1px black, 0 0 0 2px #3a3d40,
-      0 0 0 4px rgba(0, 0, 0, 0.25), 0 11px 27px -5px rgba(0, 0, 0, 0.53),
-      0 25px 25px -4px rgba(0, 0, 0, 0.35);
-  
-    background-image: radial-gradient(
-        227.71% 180.23% at 90.64% 130.38%,
-        rgb(17, 20, 23) 0%,
-        rgb(55, 59, 63) 100%
-      ),
-      radial-gradient(
-        207.84% 121.69% at -5.69% 111.39%,
-        rgb(17, 20, 23) 0%,
-        rgb(55, 59, 63) 100%
-      ),
-      linear-gradient(
-        206deg,
-        rgba(123, 134, 151, 0.2) 0%,
-        rgba(25, 27, 30, 0.2) 100%
-      ),
-      linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.2) 100%);
-  
-    span {
-      font-size: 1.5rem;
-      background-image: linear-gradient(69deg, #d1d1d1 0%, #828282 100%);
-      background-clip: text;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-weight: 400;
-      text-shadow: 0 2px 1px rgba(0, 0, 0, 0.125);
-      transition: all 0.25s ease-in-out;
-    }
-  
-    &:active {
-      transform: translateY(2px);
-      box-shadow: inset 0 0 0 1px black, 0 0 0 2px #3a3d40,
-        0 0 0 4px rgba(0, 0, 0, 0.25), 0 4px 12px -5px rgba(0, 0, 0, 0.53),
-        0 6px 6px -4px rgba(0, 0, 0, 0.35);
-      transition: all 0.25s ease-in-out;
-      span {
-        background-image: linear-gradient(69deg, #dbd56e 0%, #edeab5 100%);
-        background-clip: text;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-weight: 400;
-        text-shadow: 0 2px 1px rgba(0, 0, 0, 0.125);
-      }
-    }
-  }
-  
-  .notification-dot {
-    width: 10px;
-    height: 10px;
-    background-color: red;
-    border-radius: 50%;
-    position: absolute;
-    right: 5px;
+* {
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+  margin: 0;
+  box-sizing: border-box;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+body {
+  color: #e0e0e0;
+  background: linear-gradient(180deg, #121212, 5%, #1a1a2e, 50%, #080808);
+  background-attachment: fixed;
+  display: flex;
+  flex-direction: column;
+  place-items: center;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 450px;
+  margin: 0 auto;
+}
+
+.btn-primary, button {
+  border-radius: 5px;
+  margin: 10px;
+  padding: 10px;
+  place-items: center;
+  width: 80%;
+  text-decoration: none;
+  color: #e0e0e0;
+  background-color: #2a2a2a;
+  border: 1px solid #444444;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+}
+
+.btn-primary:hover, button:hover {
+  background-color: #3a3a3a;
+  transform: translateY(-2px);
+}
+
+.btn-primary:active, button:active {
+  transform: translateY(1px);
+  background-color: #222222;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.4);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #3a86ff;
+  margin: 0.5em 0;
+}
+
+/* Notification styles */
+.notification-dot {
+  width: 10px;
+  height: 10px;
+  background-color: #ff4545;
+  border-radius: 50%;
+  position: absolute;
+  right: 5px;
+  box-shadow: 0 0 5px rgba(255, 69, 69, 0.5);
 }
 
 #contacts {
-  position: relative; /* Needed for correct placement */
+  position: relative;
 }
 
 #contacts .notification-dot {
@@ -107,16 +76,20 @@
 .online-dot {
   width: 10px;
   height: 10px;
-  background-color: green;
+  background-color: #4caf50;
   border-radius: 50%;
   position: absolute;
   right: 20px;
-  display: none; /* Hidden by default */
+  display: none;
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
 }
 
 .typing-indicator {
   font-style: italic;
   font-size: 0.9em;
-  color: gray;
+  color: #b0b0b0;
   padding: 5px;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.05);
+  margin: 5px 0;
 }

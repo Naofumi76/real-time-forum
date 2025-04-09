@@ -18,6 +18,7 @@ export function signupPage() {
 	
 	inputEmail = document.createElement('input')
 	inputEmail.type = 'email'
+	inputEmail.id = 'email'
 	inputEmail.placeholder = 'Your email'
 	inputEmail.required = true
 	formSignup.appendChild(inputEmail)
@@ -88,7 +89,9 @@ export function submitSignupForm(event) {
         last_name: document.querySelector("input[placeholder='Your last name']").value.trim(),
     };
 
-	validate()
+	if (!validate()) {
+		return
+	}
 
     // Basic client-side validation
     if (!formData.username || !formData.email || !formData.password || !formData.first_name || !formData.last_name) {
