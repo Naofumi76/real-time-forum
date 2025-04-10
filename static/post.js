@@ -1,5 +1,7 @@
 import * as comments from './comments.js'
 import * as user from './user.js'
+import { showPopup } from './utils.js'
+
 export function showPosts(posts) {
     const postContainer = document.getElementById("postContainer");
     postContainer.innerHTML = ''; // Clear existing posts
@@ -129,7 +131,7 @@ export function submitPost() {
     const sender_id = user.getCurrentUser().ID; // Change when sessions are available
 
     if (!title || !content || !sender_id) {
-        alert("Please fill in all required fields. Title and content cannot be empty.");
+        showPopup("Please fill in all required fields. Title and content cannot be empty.");
         return;
     }
 
@@ -180,21 +182,17 @@ export function sendPostData(formData, commentState = false) {
     })
     .then(async (data) => {
         if (data.success && !commentState) {
-            alert(data.message);
+            showPopup(data.message);
             document.getElementById("postContainer").innerHTML = "";
             getPosts();
         } else if (data.success && commentState){
-            alert('Comment was successfully sent');
+            showPopup('Comment was successfully sent');
             document.getElementById("postContainer").innerHTML = "";
 
             let post = await getPostById(formData.parent_id);
-
-
             await comments.getComments(post);
-
-
         } else {
-            alert("Error: " + data.message);
+            showPopup("Error: " + data.message);
         }
     })
     .catch((error) => console.error("Error:", error));

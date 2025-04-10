@@ -1,5 +1,6 @@
 import { homePage } from "./home.js"
 import * as session from "./session.js"
+import { showPopup } from "./utils.js"
 
 export function signupPage() {
 	var formSignup, h1Signup, inputUsername, inputPassword, inputEmail, inputAge, inputGender, inputFirstName, inputLastName, inputPassword, submitButton
@@ -69,7 +70,7 @@ function validate() {
 	if (checkEmail(email)) {
 		return true;
 	} else {
-		alert('Adresse e-mail non valide');
+		showPopup('Invalid email adress');
 	}
 	return false;
 }
@@ -95,7 +96,7 @@ export function submitSignupForm(event) {
 
     // Basic client-side validation
     if (!formData.username || !formData.email || !formData.password || !formData.first_name || !formData.last_name) {
-        alert("Please fill in all required fields.");
+        showPopup("Please fill in all required fields.");
         return;
     }
 
@@ -115,12 +116,12 @@ export function submitSignupForm(event) {
         })
         .then((data) => {
             if (data.success) {
-                alert(data.message);
+                showPopup(data.message);
 				session.getUserFromSession().then(() => {
 					homePage(); // Load homepage only on success
 				});
             } else {
-                alert("Error: " + data.message);
+                showPopup("Error: " + data.message);
             }
         })
         .catch((error) => console.error("Error:", error));

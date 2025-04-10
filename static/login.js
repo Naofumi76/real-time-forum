@@ -1,5 +1,6 @@
 import { homePage } from "./home.js"
 import * as session from "./session.js"
+import { showPopup } from "./utils.js"
 
 export function loginPage() {
 	var formLogin, h1Login, inputUsername, inputEmail, inputPassword, submitButton
@@ -64,7 +65,7 @@ export function submitLoginForm(event) {
                 });
 			} else {
 				// console.error("Login failed:", data.message);
-				alert("User not found, please login again");
+				showPopup("User not found, please login again");
 			}
 		})
 		.catch((error) => console.error("Error:", error));

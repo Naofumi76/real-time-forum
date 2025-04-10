@@ -1,5 +1,6 @@
 import { contactsList, renderContacts } from "./contacts.js";
 import { socket } from "./sideBar.js";
+import { showPopup } from "./utils.js";
 
 export let activeSockets = {}; // Store active WebSocket connections per user
 let activeChatUser = null;
@@ -217,7 +218,7 @@ export function connectWebSocket(user) {
 
 //  Send Message via WebSocket
 export async function sendMessage(socket, sender, receiver, messageContent) {
-    if (!messageContent.trim()) return alert("Message cannot be empty!");
+    if (!messageContent.trim()) return showPopup("Message cannot be empty!");
 
 	//console.log("sendMessage", sender, receiver, messageContent)
 

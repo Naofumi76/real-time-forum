@@ -1,5 +1,6 @@
 import { sendPostData } from "./post.js";
 import { getCurrentUser } from "./user.js";
+import { showPopup } from "./utils.js";
 
 export async function showComments(comments, originalPost) {
 	function createPostElement(post) {
@@ -128,7 +129,7 @@ function submitComment(){
 	const sender_id = getCurrentUser().ID; 
 
 	if (!content){
-		alert("Please write a comment. Comment cannot be empty.");
+		showPopup("Please write a comment. Comment cannot be empty.");
         return;
 	}
 	
