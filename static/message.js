@@ -134,7 +134,7 @@ export async function openPrivateMessage(firstUser, secondUser) {
 
     let typingIndicator = document.createElement("div");
     typingIndicator.className = "typing-indicator";
-    typingIndicator.textContent = `${secondUser.Username} is typing...`;
+    typingIndicator.innerHTML = `${secondUser.Username} is typing<span class="dot-animation"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>`;
     typingIndicator.style.display = "none";
     messageContainer.appendChild(typingIndicator);
 
